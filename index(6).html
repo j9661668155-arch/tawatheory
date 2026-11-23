@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apna Dhaba - Order & Tiffin</title>
+<style>
+*{box-sizing:border-box}:root{--pri:#e8590c;--dark:#5c1a1a;--cream:#fff8ee}
+body{font-family:"Trebuchet MS",Verdana,sans-serif;margin:0;background:var(--cream);color:#2b1d1a}
+h2,h3{font-family:Georgia,"Times New Roman",serif}
+.header{position:relative;padding:34px 16px;border-radius:0 0 28px 28px;text-align:center;color:#fff;background:linear-gradient(135deg,var(--dark),#a3330f)}
+.card{background:#fff;margin:10px;padding:12px;border-radius:14px;border-left:5px solid var(--pri);display:flex;gap:10px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.card img{width:70px;height:70px;object-fit:cover;border-radius:10px}
+.price{color:#c2410c;font-weight:bold}.btn{background:var(--pri);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:bold}
+.qty{display:flex;gap:8px;align-items:center}.qty button{width:30px;height:30px;border-radius:50%;border:1px solid #ddd;background:#fff;font-weight:bold}
+input,select{width:100%;padding:11px;margin:6px 0;border:1px solid #ddd;border-radius:8px}
+.tabBtn{flex:1 0 auto;padding:10px 16px;border:none;border-radius:22px;background:#f1e3d0;color:var(--dark);font-weight:bold}.tabBtn.active{background:var(--dark);color:#fff}
+.sec{background:#fff;margin:12px 10px;padding:16px;border-radius:18px;box-shadow:0 2px 8px rgba(92,26,26,.08)}.sec h3{margin:0 0 10px;color:var(--dark)}
+.sec h3::after{content:"";display:block;width:36px;height:3px;background:var(--pri);margin-top:4px;border-radius:2px}
+.hero{margin:12px 10px;padding:24px 16px;border-radius:22px;background:linear-gradient(135deg,var(--dark),#a3330f);color:#fff;text-align:center}
+.hero p{color:#ffe8cc!important}.hero .mini{background:rgba(255,255,255,.14);color:#fff}.hero .cta.alt{background:#fff;color:var(--dark)}
+.plans{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px}.plans .plan{min-width:78%;scroll-snap-align:start;margin:0;background:#fffdf8}
+.cta.wa{background:#25D366}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mini{background:#fff1e0;border-radius:10px;padding:10px;font-size:13px}
+.plan{border:2px solid #eee;border-radius:12px;padding:12px;margin:8px 0;font-size:14px}.plan.best{border-color:var(--pri);background:#fff4e6!important}
+.big{font-size:26px;font-weight:bold;color:#e23744}.n{background:var(--pri);color:#fff;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;margin-right:8px;flex:none}
+.step{display:flex;align-items:flex-start;margin:10px 0;font-size:14px}details.faq{border-bottom:1px solid #eee;padding:8px 0;font-size:14px}details.faq summary{font-weight:bold;cursor:pointer}
+.cta{display:inline-block;background:var(--pri);color:#fff;padding:11px 18px;border-radius:10px;font-weight:bold;border:none;text-decoration:none;margin:4px;font-size:14px}.cta.alt{background:#000}
+html{scroll-behavior:smooth;scroll-padding-top:58px}body{padding-bottom:64px}
+.nav{position:sticky;top:0;z-index:15;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);display:flex;align-items:center;gap:6px;padding:8px 10px;overflow-x:auto;white-space:nowrap}
+.nav a{color:var(--dark);text-decoration:none;font-weight:bold;font-size:13px;padding:6px 8px}.nav .brand{font-family:Georgia,serif;color:var(--dark);margin-right:4px}
+.badge{display:inline-block;background:rgba(255,255,255,.18);padding:5px 12px;border-radius:20px;font-size:12px}
+.hm{background:rgba(255,255,255,.14);color:#fff}.strip{display:flex;gap:8px;overflow-x:auto}.fi{flex:none;min-width:96px;text-align:center;font-size:12px;background:#fff1e0;border-radius:12px;padding:10px 6px}
+.band{margin:12px 10px;padding:20px 14px;border-radius:18px;background:var(--dark);color:#fff;text-align:center}.band .cta.alt{background:#fff;color:var(--dark)}
+.sm{font-size:12px;color:#666}.foot{text-align:center;font-size:11px;color:#999;padding:14px 0 8px}.foot a{color:#999}
+.header .cta.alt{background:#fff;color:var(--dark)}
+</style>
+</head>
+<body>
+<div id="top"></div>
+<div class="nav"><b class="shopN brand">Apna Dhaba</b><a href="#dailymenu">Menu</a><a href="#plans">Plans</a><a href="#whyus">Why Us</a><a href="#faq">FAQ</a><a href="#contact">Contact</a><a class="cta" href="#orderMenu" style="margin:0;padding:8px 14px">📱 Order Now</a></div>
+<div id="shopClosedBanner" style="display:none;background:red;color:#fff;text-align:center;padding:12px;font-weight:bold;margin:10px;border-radius:10px"></div>
+
+<div class="header" id="hdr"><span class="badge">🟢 Roz taaza khana ban raha hai</span><br>
+<img id="hdrLogo" alt="" style="display:none;width:64px;height:64px;border-radius:50%;object-fit:cover;background:#fff;margin:8px 0 2px"><h2 id="hdrName" style="margin:6px 0 0;font-size:28px">🍽️ Apna Dhaba</h2><p id="hdrTag" style="margin:4px 0 8px;font-size:14px">Tiffin • Thali • Home Delivery</p>
+<p style="font-size:14px;margin:0 0 12px;color:#ffe8cc">Roz subah taaza bana, ghar jaisa khana - seedha aapke darwaze par.</p>
+<a class="cta" href="#orderMenu">🛒 Order Now</a><a class="cta alt" href="#plans">📦 Monthly Tiffin</a>
+<div class="grid2" style="margin-top:12px;text-align:left"><div class="mini hm">✓ Taaza aur garam</div><div class="mini hm">✓ Saaf kitchen</div><div class="mini hm">✓ Balanced thali</div><div class="mini hm">✓ Time par delivery</div></div></div>
+
+<div class="sec"><div id="feat" class="strip"></div></div>
+
+<div class="sec" id="story"><h3>🍲 Hamari Kahani</h3><p style="font-size:14px;margin:0">Hum maante hain ki har kisi ko roz ghar jaisa khana milna chahiye - kaam par jaate log, hostel ke bacche, aur vyast parivaar. Isliye hum roz subah taaza khana banate hain, saaf kitchen me, seedhe-saade masalon ke saath.</p></div>
+
+<div class="sec"><h3>⚡ Fark Khud Dekho</h3><div class="grid2">
+<div class="mini" style="background:#fdecea"><b>😰 Roz bahar ka khana</b><br>❌ Kitchen dikhta nahi<br>❌ Bhaari aur chikna<br>❌ Roz kharch badhta hai<br>❌ Ghar jaisa swad nahi</div>
+<div class="mini" style="background:#e9f7ec"><b>😊 <span class="shopN"></span></b><br>✅ Roz taaza bana khana<br>✅ Halka, balanced thali<br>✅ Sasti monthly plans<br>✅ Ghar jaisa swad</div></div></div>
+
+<div class="sec" id="dailymenu"><h3>🍛 Daily Menu</h3><div id="todayMenuBox"></div><p style="font-size:13px;color:#666">Har thali me ye sab milta hai:</p><div id="menuCards" class="grid2"></div></div>
+
+<div class="sec" style="padding:0;background:none;box-shadow:none"><!-- MENU -->
+<div id="orderMenu">
+<div style="background:#fff;margin:10px;padding:12px;border-radius:12px"><input id="search" placeholder="🔍 Kya khana hai? Paneer, Dal..." oninput="renderItems()"></div>
+<div id="itemsList"></div>
+</div>
+
+<!-- THALI -->
+<div id="thali">
+<div style="background:#fff;margin:10px;padding:15px;border-radius:12px"><h3 style="margin:0">🍽️ Thali - Plate Option</h3><p style="font-size:13px;color:#666">Ek Thali me poora khana</p><div id="thaliList"></div></div>
+</div>
+
+</div>
+
+<div class="sec" id="whyus"><h3>⭐ Humein Kyun Chune</h3><div id="whyCards" class="grid2"></div></div>
+
+<div class="band"><b>🍱 Ek baar swad chakh ke dekho!</b><br><span style="font-size:13px">Aaj hi order karo - roz subah naya batch banta hai.</span><br><a class="cta" href="#orderMenu">📱 Order Now</a><a class="cta alt" id="bandWa" href="#contact">📞 Contact</a></div>
+
+<div class="sec" id="plans"><h3>🍱 Flexible Plans</h3><p style="font-size:13px;color:#666;margin:0">Jitna lamba plan, utni bachat. (Prices per meal)</p><div class="plans">
+<div class="plan"><b>Trial Pack</b> <span style="color:#666">- ek din try karo</span><div><span class="big" id="pr1">99</span> / meal</div>✓ Poori thali ✓ Koi commitment nahi<br><button class="cta" onclick="gotoTab('thali')">Try Today</button></div>
+<div class="plan"><b>Weekly Plan</b> <span style="color:#666">- regular ke liye</span><div><span class="big" id="pr2">70</span> / meal</div>✓ Hafte bhar delivery ✓ Rotating menu<br><button class="cta" onclick="gotoTab('subs')">Subscribe Weekly</button></div>
+<div class="plan best"><b>Monthly Plan ⭐ Best Deal</b><div><span class="big" id="pr3">60</span> / meal</div>✓ Poore mahine delivery ✓ Sabse zyada bachat ✓ Dukaan band ho to din badh jata hai<br><button class="cta" onclick="gotoTab('subs')">Subscribe Monthly</button></div></div>
+<p style="font-size:12px;color:#666;margin:6px 0 0">💡 Office ya hostel group ke liye neeche Group Booking bharo.</p></div>
+<!-- SUBSCRIBE -->
+<div id="subform">
+<div style="background:#fff;margin:10px;padding:15px;border-radius:12px">
+<h3>📦 Monthly Tiffin Subscribe Karo</h3>
+<input id="sname" placeholder="Apna Naam"><input id="smobile" placeholder="Mobile No."><input id="saddr" placeholder="Full Address">
+<label>Breakfast</label><select id="sb"><option>Off</option><option>On - ₹1500 / Month</option></select>
+<label>Lunch</label><select id="sl"><option>On - ₹1800 / Month</option><option>Off</option></select>
+<label>Dinner</label><select id="sd"><option>On - ₹1800 / Month</option><option>Off</option></select>
+<label>Kitne Din?</label><select id="sdays"><option value="30">30 Din</option><option value="15">15 Din</option><option value="7">7 Din</option></select>
+<button onclick="saveSub()" style="background:var(--pri);color:#fff;width:100%;padding:13px;border:none;border-radius:8px;font-weight:bold">📲 Subscribe Karo - WhatsApp Pe Bhejo</button>
+<div id="mySub" style="margin-top:10px"></div>
+</div>
+</div>
+
+
+<div class="sec"><h3>📦 Packing & Delivery</h3><div id="packCards" class="grid2"></div></div>
+
+<div class="sec"><h3>🔄 Kaise Kaam Karta Hai</h3><div id="steps"></div></div>
+
+<div class="sec" id="reviews" style="display:none"><h3>💬 Customers Kya Kehte Hain</h3><div id="revList"></div></div>
+
+<div class="sec"><h3>🧼 Hamara Kitchen, Aapka Bharosa</h3><div id="hygCards" class="grid2"></div></div>
+
+<div class="band" style="background:#fff4e6;color:#5c1a1a"><b>🤝 Satisfaction Guarantee</b><br><span style="font-size:13px">Khana pasand na aaye to WhatsApp karo - hum dekhenge.</span></div>
+
+<div class="sec" id="faq"><h3>❓ Aam Sawal</h3><div id="faqList"></div></div>
+
+<div class="band"><b>⏰ Aaj ka slot bhar sakta hai!</b><br><span style="font-size:13px">Limited batch me banta hai - jaldi order karo.</span><br><a class="cta" href="#orderMenu">📱 Order Now</a></div>
+
+<div class="sec"><h3>🏆 Hamara Vaada</h3><div id="vowCards" class="grid2"></div></div>
+
+<div class="sec" id="group"><h3>👥 Group / Office Booking</h3>
+<input id="bname" placeholder="Naam / Office ka naam"><input id="bmobile" placeholder="Mobile No.">
+<select id="bplan"><option>Weekly Plan</option><option>Monthly Plan</option><option>Custom Plan</option></select>
+<input id="bpeople" type="number" placeholder="Kitne log / tiffin roz?"><input id="bdate" type="date">
+<select id="bdel"><option>Home Delivery</option><option>Office Delivery</option></select><input id="bnote" placeholder="Koi khaas baat (veg, kam tel...)">
+<button class="cta" style="width:100%" onclick="sendBooking()">📲 Book Now - WhatsApp Pe Bhejo</button></div>
+
+<div class="sec" id="contact" style="text-align:center"><h3>📍 Contact</h3><div id="contactBox"></div></div>
+
+<!-- ADMIN -->
+<div id="tab-admin" style="display:none">
+<div style="background:#fff;margin:10px;padding:15px;border-radius:12px">
+<h3>🔐 Admin Panel</h3><input id="adminPass" type="password" placeholder="Password">
+<button onclick="loginAdmin()" style="background:#000;color:#fff;width:100%;padding:12px;border:none;border-radius:8px">Login</button>
+<div id="adminBox" style="display:none">
+<button onclick="loginAdmin(true)" style="background:#eee;width:100%;padding:10px;border:none;border-radius:8px;margin:8px 0">🔄 Refresh (Sheet se naya data)</button>
+<button onclick="logoutAdmin()" style="background:#b91c1c;color:#fff;width:100%;padding:10px;border:none;border-radius:8px;margin:4px 0">🚪 Admin Logout</button>
+<details style="margin:10px 0;font-size:13px"><summary style="color:#666;cursor:pointer">🔗 Sheet Connection (Apps Script URL)</summary>
+<input id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+<div style="display:flex;gap:6px"><button onclick="saveSheetUrl()" style="flex:2;background:var(--pri);color:#fff;padding:10px;border:none;border-radius:8px;font-weight:bold">Save + Test</button><button onclick="resetSheetUrl()" style="flex:1;background:#eee;padding:10px;border:none;border-radius:8px">Reset</button></div>
+<p style="color:#888;font-size:11px;margin:6px 0 0">Ye URL sirf is phone/browser me save hota hai. Sab customers ke liye file ki SHEET_URL line badlo.</p></details>
+
+<h3>🏪 Shop Settings</h3>
+<input id="setName" placeholder="Dukaan ka Naam"><input id="setTag" placeholder="Tagline (jaise Tiffin • Thali)">
+<label>Plan Prices (per meal ₹)</label><div style="display:flex;gap:6px"><input id="setP1" type="number" placeholder="Trial"><input id="setP2" type="number" placeholder="Weekly"><input id="setP3" type="number" placeholder="Monthly"></div>
+<textarea id="setRev" rows="3" placeholder="Reviews (asli customers ke) - har line: Naam | review" style="width:100%;padding:11px;margin:6px 0;border:1px solid #ddd;border-radius:8px"></textarea>
+<input id="setUpi" placeholder="UPI ID (jaise naam@upi)" oninput="renderUpiAdminPreview()">
+<div style="border:1px solid #25D366;background:#f0fff4;padding:12px;border-radius:10px;margin:8px 0">
+<label for="setWhatsApp" style="font-weight:bold;display:block;margin-bottom:6px">📲 Order WhatsApp Number (Admin Setting)</label>
+<input id="setWhatsApp" type="tel" inputmode="numeric" maxlength="10" placeholder="10 digit WhatsApp number (bina +91)" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" style="width:100%;box-sizing:border-box">
+<button type="button" onclick="saveWhatsAppNumber()" style="background:#16a34a;color:#fff;width:100%;padding:11px;border:0;border-radius:8px;font-weight:bold;margin-top:5px">💾 WhatsApp Number Save Karo</button>
+<div id="waAdminStatus" style="font-size:12px;color:#166534;margin-top:6px">Number save karne ke baad customer orders isi WhatsApp par aayenge.</div>
+</div>
+<input id="setPhone" placeholder="Call / Contact Number (10 digit)"><input id="setAddr" placeholder="Dukaan ka Address">
+<h3>👁️ Website Menu Show / Hide</h3><div class="grid2">
+<label><input type="checkbox" id="visMenu" style="width:auto"> Menu</label><label><input type="checkbox" id="visPlans" style="width:auto"> Plans</label>
+<label><input type="checkbox" id="visWhy" style="width:auto"> Why Us</label><label><input type="checkbox" id="visFaq" style="width:auto"> FAQ</label>
+<label><input type="checkbox" id="visContact" style="width:auto"> Contact</label></div>
+<div id="upiAdminPreview" class="mini" style="text-align:center;margin:8px 0">UPI ID save karne ke baad QR aur payment link generate hoga.</div>
+<label>Logo (square image)</label><input type="file" id="setLogo" accept="image/*">
+<label>Dashboard Pic (upar ki badi photo)</label><input type="file" id="setBanner" accept="image/*">
+<button onclick="saveSettings()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">💾 Settings Save Karo</button>
+<div style="display:flex;gap:6px;margin-top:6px"><button onclick="removeShopImg('logo')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#eee">Logo Hatao</button><button onclick="removeShopImg('banner')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#eee">Pic Hatao</button></div>
+
+<h3 style="margin-top:20px">➕ Naya Item Add Karo</h3>
+<input id="pName" placeholder="Item Naam"><input id="pPrice" type="number" placeholder="Price"><select id="pUnit"><option>Kg</option><option>Gram</option><option>Piece</option><option>Plate</option></select>
+<button onclick="addProduct()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">Item Add Karo</button>
+
+<h3 style="margin-top:20px">📅 7 Day Menu</h3><div id="weekMenuAdmin"></div>
+<button onclick="saveWeekMenu()" style="background:#000;color:#fff;width:100%;padding:12px;border:none;border-radius:8px">7 Day Menu Save Karo</button>
+
+<h3 style="margin-top:20px">🏪 Shop Closed</h3>
+<input type="date" id="closedDate"><input id="closedReason" placeholder="Reason - Festival, Off">
+<button onclick="markShopClosed()" style="background:red;color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">🚫 Dukaan Band Karo - Auto Extend</button>
+<div id="closedList"></div>
+
+<h3 style="margin-top:20px">🌙 Kal Ka Menu Sabko Bhejo</h3>
+<button onclick="sendTomorrowToAllSubs()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">Kal Ka Menu Generate Karo</button>
+<div id="tomorrowReminderList"></div>
+
+<h3 style="margin-top:20px">📦 Orders - Confirm / Reject</h3>
+<div id="ordersList"></div>
+<h3>👥 Subscriptions</h3><div id="subsList"></div>
+</div></div></div>
+
+
+<div id="payBox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:16px"><div style="background:#fff;border-radius:18px;padding:20px;max-width:380px;width:100%;text-align:center;max-height:90vh;overflow:auto">
+<h3 style="margin:0">💳 UPI Payment</h3><div class="big" id="payAmt" style="margin:8px 0"></div>
+<a id="payLink" class="cta" style="display:block;margin:8px 0">📲 UPI App Kholo</a>
+<p class="sm">QR scan karke payment karein</p><img id="payQr" alt="UPI QR Code" style="width:190px;height:190px;object-fit:contain;border:1px solid #eee;border-radius:8px">
+<p style="font-size:14px;margin:6px 0">UPI ID: <b id="payVpa"></b> <button onclick="copyUpi()" style="border:1px solid #ddd;background:#fff;border-radius:6px;padding:4px 8px">Copy</button></p>
+<div style="border-top:1px solid #eee;margin-top:8px;padding-top:8px"><b style="font-size:13px">Pay karne ke baad UTR daalo</b>
+<input id="utrIn" inputmode="numeric" maxlength="12" placeholder="12 digit UTR / Ref No.">
+<button class="cta" style="width:100%;margin:2px 0" onclick="submitUtr()">✅ Payment Ho Gaya - UTR Bhejo</button></div>
+<p class="sm">UTR aapke UPI app ke Transaction Details me milta hai. Computer par ho to UPI ID copy karke apne phone se pay karo.</p>
+<button onclick="document.getElementById('payBox').style.display='none'" style="width:100%;padding:11px;border:none;border-radius:10px;background:#eee;font-weight:bold">Band Karo</button></div></div>
+<div class="foot">© <span class="shopN"></span> • <a href="#top">Upar jao</a> • <a href="#" onclick="openAdmin();return false">Admin</a></div>
+<!-- CART -->
+<details id="cartDet" style="position:fixed;left:0;right:0;bottom:0;margin:auto;max-width:640px;z-index:20;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -3px 12px rgba(0,0,0,.18)"><summary style="padding:13px 16px;font-weight:bold;cursor:pointer">🛒 Cart: <span id="cartMini">Kuch nahi hai</span></summary><div style="padding:0 16px 16px;max-height:65vh;overflow:auto">
+<p id="cartText" style="margin:6px 0">Kuch nahi hai</p>
+<input id="cname" placeholder="Apna Naam"><input id="cmobile" placeholder="Mobile No."><input id="caddress" placeholder="Full Address - Jaipur">
+<label><input type="radio" name="pay" value="COD" checked style="width:auto"> Cash on Delivery</label>
+<label><input type="radio" name="pay" value="Online" style="width:auto"> UPI / Online Payment</label>
+<label><input type="radio" name="pay" value="Half Advance" style="width:auto"> Half Advance (UPI se 50%)</label>
+<button id="orderBtn" onclick="orderOnWhatsApp()" style="background:var(--pri);color:#fff;width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:16px">📲 WhatsApp Pe Order Bhejo</button>
+</div></details>
+
+<script>
+// ★★★ TUMHARA SETUP ★★★
+const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbyKuRNPbIM_8NaMzxgLIQeGkO_V9QXsb4yhR3_ZOX6F-c87_q9yKajAZI_7yqoinHc/exec";
+let SHEET_URL = DEFAULT_SHEET_URL;
+try{ SHEET_URL = localStorage.getItem("sheetUrl") || DEFAULT_SHEET_URL; }catch(e){}
+let WHATSAPP_NUMBER = "91XXXXXXXXXX"; // Admin panel me WhatsApp number save karein
+
+function todayStr(){let d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function numOk(){return /^91\d{10}$/.test(WHATSAPP_NUMBER);}
+function waOpen(num,msg){window.open("https://wa.me/"+num+"?text="+encodeURIComponent(msg),"_blank");}
+async function post(obj){ obj.pass=adminPass; try{ await fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(obj)}); }catch(e){} }
+async function saveToSheet(type,row){ return post({type:type,row:row}); }
+async function updateOrderStatusInSheet(id,status,rejectReason=""){ return post({type:"Orders",action:"updateStatus",id:id,status:status,rejectReason:rejectReason}); }
+const rowsOf=a=>Array.isArray(a)?a:[];
+function applySheetData(d){
+  items=[...baseItems];
+  rowsOf(d.Products).forEach(r=>{ if(r[0]&&!isNaN(parseInt(r[1]))) items.push({name:r[0],price:parseInt(r[1]),unit:r[2]||"Plate",img:DEFAULT_IMG}); });
+  rowsOf(d.WeekMenu).forEach(r=>{ if(weekDays.includes(r[0])) weekMenu[r[0]]=r[1]||""; });
+  closedDays=rowsOf(d.ClosedDays).filter(r=>/^\d{4}-\d\d-\d\d$/.test(r[0])).map(r=>({date:r[0],reason:r[1]||"Dukaan Band Hai"}));
+  rowsOf(d.Settings).forEach(r=>{ if(SHOP_KEYS.includes(r[0])){ if(!r[1]&&["name","plan1","plan2","plan3"].includes(r[0])) return; shop[r[0]]=r[1]||""; } });
+  if(d.Settings){ try{localStorage.setItem("shopSettings",JSON.stringify(shop));}catch(e){} applyShop(); }
+  if(d.Orders) allOrders=rowsOf(d.Orders).filter(r=>String(r[0]).startsWith("ORD")).map(r=>({id:r[0],name:r[1],mobile:r[2],addr:r[3],items:r[4],total:r[5],pay:r[6],status:r[7]||"Pending",rejectReason:r[8]||"",time:r[9],utr:r[10]||"",payStatus:r[11]||""}));
+  if(d.Subs) allSubs=rowsOf(d.Subs).filter(r=>/\d{6,}/.test(r[1])).map(r=>({name:r[0],mobile:r[1],addr:r[2],b:r[3],l:r[4],d:r[5],days:r[6],date:r[7],utr:r[10]||"",payStatus:r[11]||""}));
+}
+async function loadPublic(){
+  try{
+    const r=await fetch(SHEET_URL+"?action=public&_ts="+Date.now(),{cache:"no-store"});
+    const d=await r.json();
+    if(!d || d.ok===false) throw new Error("Cloud data unavailable");
+    applySheetData(d); renderItems(); showTodayMenu(); showClosedList(); checkShopClosed();
+    return true;
+  }catch(e){ console.warn("Cloud refresh failed",e); return false; }
+}
+let cloudRefreshBusy=false;
+async function refreshCloudData(){
+  if(cloudRefreshBusy || document.visibilityState==="hidden") return;
+  cloudRefreshBusy=true;
+  try{
+    if(adminPass){
+      const r=await fetch(SHEET_URL+"?action=admin&pass="+encodeURIComponent(adminPass)+"&_ts="+Date.now(),{cache:"no-store"});
+      const d=await r.json();
+      if(d && d.ok){
+        applySheetData(d); renderItems(); showTodayMenu(); showClosedList(); checkShopClosed();
+        showOrders(); showSubs();
+      }else{
+        await loadPublic();
+      }
+    }else{
+      await loadPublic();
+    }
+  }catch(e){ console.warn("Automatic cloud refresh failed",e); }
+  finally{ cloudRefreshBusy=false; }
+}
+// Har 60 second me Google Sheet se latest website settings/menu/orders sync karein.
+setInterval(refreshCloudData,60000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") refreshCloudData(); });
+async function saveSheetUrl(){
+  let u=document.getElementById("sheetUrlInput").value.trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u)){alert("URL galat hai. https://script.google.com/macros/s/.../exec jaisa hona chahiye");return;}
+  try{ const r=await fetch(u+"?action=public"); const d=await r.json(); if(!d.ok) throw 0;
+    SHEET_URL=u; localStorage.setItem("sheetUrl",u); applySheetData(d); renderItems(); showTodayMenu(); checkShopClosed(); alert("✅ Connect ho gaya!"); loginAdmin(true);
+  }catch(e){alert("❌ Connect nahi hua. URL check karo, aur Deploy me access 'Anyone' rakho.");}
+}
+function resetSheetUrl(){ try{localStorage.removeItem("sheetUrl");}catch(e){} SHEET_URL=DEFAULT_SHEET_URL; document.getElementById("sheetUrlInput").value=SHEET_URL; loadPublic(); alert("Default URL wapas laga diya"); }
+const mc=(e,t,d)=>'<div class="mini" style="text-align:center"><div style="font-size:26px">'+e+'</div><b>'+t+'</b>'+(d?'<div class="sm">'+d+'</div>':'')+'</div>';
+function renderSite(){
+  const put=(id,h)=>document.getElementById(id).innerHTML=h;
+  put("feat",[["🏠","Ghar jaisa swad"],["🧼","Saaf kitchen"],["🌱","Taaza saamaan"],["📦","Achhi packing"],["⏰","Time par delivery"]].map(a=>'<div class="fi"><div style="font-size:24px">'+a[0]+'</div>'+a[1]+'</div>').join(""));
+  put("menuCards",[["🫓","Roti","Garam, naram rotis"],["🥬","Sabzi","Mausam ki taaza sabzi"],["🫘","Dal","Roz alag tarah ki dal"],["🍚","Chawal","Khile-khile chawal"]].map(a=>mc(a[0],a[1],a[2])).join(""));
+  put("whyCards",[["🏠","Ghar Jaisa Swad","Ghar ke kitchen jaisa khana"],["🧼","Saaf-Safai","Saaf haath, saaf kitchen"],["🌿","Taaza Saamaan","Roz taaza sabzi aur masale"],["💰","Sasti Plans","Roz ke bahar ke khane se kam kharch"]].map(a=>mc(a[0],a[1],a[2])).join(""));
+  put("packCards",[["🥡","Saaf Dabbe","Saaf-suthri packing"],["🔥","Garam Delivery","Khana garam pahuchane ki koshish"],["🛵","Doorstep Delivery","Seedha aapke darwaze par"]].map(a=>mc(a[0],a[1],a[2])).join(""));
+  put("steps",[["Order karo","Menu se order karo ya WhatsApp pe batao."],["Plan chuno","Daily, weekly ya monthly - jo suit kare."],["Hum taaza banate hain","Roz subah fresh khana tayyar hota hai."],["Garam khana pahuche","Time par aapke darwaze par delivery."]].map((a,i)=>'<div class="step"><span class="n">'+(i+1)+'</span><div><b>'+a[0]+'</b><br>'+a[1]+'</div></div>').join(""));
+  put("hygCards",[["🧤","Saaf haath","Khana banate waqt safai ka dhyan"],["🧼","Roz safai","Bartan aur kitchen roz saaf"],["🥕","Taaza saamaan","Roz taaza kharidi hui sabzi"],["♻️","Pack karke garam","Saaf dabbon me pack"]].map(a=>mc(a[0],a[1],a[2])).join(""));
+  put("vowCards",[["🌾","Taaza Saamaan","Achhi quality ka saamaan"],["👨‍👩‍👧","Parivaar Jaisa","Wahi khana jo hum ghar me khate hain"],["🎯","Ek Jaisa Swad","Pehle din se aakhri din tak"]].map(a=>mc(a[0],a[1],a[2])).join(""));
+  put("faqList",[["Order kaise karu?","Menu ya Thali se items chuno, cart me naam-address bharo aur WhatsApp pe order bhejo."],["Kaun-kaun se plans hain?","Trial, Weekly aur Monthly. Custom plan ke liye Group Booking bharo."],["Dukaan band ho to subscription ka kya?","Band din ke hisaab se subscription me ek din apne aap jod diya jata hai."],["Payment kaise karu?","Cash on Delivery, Online ya Half Advance - order ke time chun sakte ho."],["Meri jagah delivery hoti hai?","Apna address WhatsApp pe bhejo, hum confirm kar denge."]].map(a=>'<details class="faq"><summary>'+a[0]+'</summary>'+a[1]+'</details>').join(""));
+}
+function renderReviews(){
+  const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  let r=String(shop.reviews||"").split("\n").map(l=>l.split("|")).filter(a=>a.length>1&&a[1].trim());
+  document.getElementById("reviews").style.display=r.length?"block":"none";
+  document.getElementById("revList").innerHTML=r.map(a=>'<div class="mini" style="margin:6px 0">⭐⭐⭐⭐⭐<br>'+esc(a.slice(1).join("|").trim())+'<br><b>- '+esc(a[0].trim())+'</b></div>').join("");
+}
+function gotoTab(t){ const m={menu:"orderMenu",thali:"thali",subs:"subform",home:"top"}; const e=document.getElementById(m[t]||t); if(e) e.scrollIntoView({behavior:"smooth"}); }
+function openAdmin(){ const a=document.getElementById("tab-admin"); a.style.display="block"; a.scrollIntoView(); }
+function logoutAdmin(){adminPass="";document.getElementById("adminPass").value="";document.getElementById("adminBox").style.display="none";document.getElementById("tab-admin").style.display="none";alert("Admin logout ho gaya.");}
+function logoutAdmin(){
+ adminPass=""; document.getElementById("adminPass").value="";
+ document.getElementById("adminBox").style.display="none";
+ document.getElementById("tab-admin").style.display="none";
+ alert("Admin logout ho gaya.");
+}
+let payCtx={};
+function submitUtr(){
+  let u=document.getElementById("utrIn").value.replace(/\D/g,"");
+  if(!/^\d{12}$/.test(u)){alert("12 digit ka UTR number daalo (UPI app me Transaction Details me milta hai)");return;}
+  post({type:payCtx.type,action:"submitUtr",key:payCtx.key,mobile:payCtx.mobile,utr:u});
+  document.getElementById("payBox").style.display="none"; document.getElementById("utrIn").value="";
+  if(numOk()) waOpen(WHATSAPP_NUMBER,"*💳 PAYMENT DONE - "+shop.name+"*\n\nOrder/Plan: "+payCtx.ref+"\nAmount: ₹"+payCtx.amt+"\nUTR: "+u);
+  alert("✅ UTR mil gaya. Hum payment check karke confirm karenge.");
+}
+function showPay(amt,ref,type,mobile,key){
+  payCtx={amt:amt,ref:ref,type:type,mobile:mobile,key:key};
+  document.getElementById("payAmt").innerText="₹"+amt;
+  document.getElementById("payVpa").innerText=shop.upi;
+  let upiUrl="upi://pay?pa="+encodeURIComponent(shop.upi)+"&pn="+encodeURIComponent(shop.name)+"&am="+amt+"&cu=INR&tn="+encodeURIComponent("Order "+ref);
+  document.getElementById("payLink").href=upiUrl;
+  document.getElementById("payQr").src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data="+encodeURIComponent(upiUrl);
+  document.getElementById("payBox").style.display="flex";
+}
+function copyUpi(){ try{navigator.clipboard.writeText(shop.upi);alert("UPI ID copy ho gayi");}catch(e){alert(shop.upi);} }
+function sendBooking(){
+  let g=id=>document.getElementById(id).value.trim();
+  if(!g("bname")||!g("bmobile")){alert("Naam aur Mobile bharo");return;}
+  if(!numOk()){alert("WHATSAPP_NUMBER set nahi hai. Code me apna number daalo.");return;}
+  waOpen(WHATSAPP_NUMBER,"*👥 GROUP BOOKING - "+shop.name+"*\n\nName: "+g("bname")+"\nMobile: "+g("bmobile")+"\nPlan: "+g("bplan")+"\nTiffin/Din: "+g("bpeople")+"\nStart Date: "+g("bdate")+"\nDelivery: "+g("bdel")+"\nNote: "+g("bnote"));
+}
+
+const DEFAULT_IMG="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200";
+const baseItems = [
+{"name":"Aloo","price":40,"unit":"Kg","img":"https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200"},
+{"name":"Paneer Butter Masala","price":180,"unit":"Plate","img":"https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=200"},
+{"name":"Dal Tadka","price":120,"unit":"Plate","img":"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=200"}
+];
+let items = [...baseItems];
+let adminPass = "";
+let shop = {name:"Apna Dhaba",tag:"Tiffin • Thali • Home Delivery",logo:"",banner:"",plan1:"99",plan2:"70",plan3:"60",phone:"",whatsapp:"",addr:"",reviews:"",upi:""};
+const SHOP_KEYS=["name","tag","logo","banner","plan1","plan2","plan3","phone","whatsapp","addr","reviews","upi","menuVisibility"];
+try{ Object.assign(shop, JSON.parse(localStorage.getItem("shopSettings")||"{}")); }catch(e){}
+function applyShop(){
+  let l=document.getElementById("hdrLogo"), h=document.getElementById("hdr");
+  document.getElementById("hdrName").innerText=(shop.logo?"":"🍽️ ")+shop.name;
+  document.getElementById("hdrTag").innerText=shop.tag||"";
+  document.title=shop.name; renderReviews();
+  WHATSAPP_NUMBER=shop.whatsapp?("91"+String(shop.whatsapp).replace(/\D/g,"").slice(-10)):"91XXXXXXXXXX";
+  applyMenuVisibility();
+  document.querySelectorAll(".shopN").forEach(e=>e.innerText=shop.name);
+  ["1","2","3"].forEach(i=>document.getElementById("pr"+i).innerText=shop["plan"+i]);
+  let ph=String(shop.phone||"").replace(/[^0-9]/g,"").slice(-10), c="";
+  if(ph) c+='<a class="cta alt" href="tel:+91'+ph+'">📞 Call '+ph+'</a>';
+  if(numOk()) c+='<a class="cta wa" target="_blank" href="https://wa.me/'+WHATSAPP_NUMBER+'">💬 WhatsApp</a>';
+  if(shop.addr) c+='<p style="font-size:13px;color:#555">'+String(shop.addr).replace(/</g,"&lt;")+'</p>';
+  document.getElementById("contactBox").innerHTML=c||'<p style="font-size:13px;color:#888">Contact jaldi add hoga</p>';
+  if(shop.logo){l.src=shop.logo;l.style.display="inline-block";}else{l.style.display="none";}
+  if(shop.banner){h.style.background="linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('"+shop.banner+"') center/cover";}
+  else{h.style.background="";}
+}
+function fillShopForm(){
+ document.getElementById("setWhatsApp").value=shop.whatsapp||"";
+ ["Menu","Plans","Why","Faq","Contact"].forEach(k=>{let el=document.getElementById("vis"+k);if(el)el.checked=(getMenuVisibility()[k.toLowerCase()]!==false);});
+ document.getElementById("setP1").value=shop.plan1; document.getElementById("setP2").value=shop.plan2; document.getElementById("setP3").value=shop.plan3; document.getElementById("setUpi").value=shop.upi||""; document.getElementById("setPhone").value=shop.phone; document.getElementById("setRev").value=shop.reviews||""; document.getElementById("setAddr").value=shop.addr; document.getElementById("setName").value=shop.name; document.getElementById("setTag").value=shop.tag; renderUpiAdminPreview(); }
+function fileToData(file,maxW,maxH,limit,type){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ let sc=Math.min(1,maxW/img.width,maxH/img.height), c=document.createElement("canvas"); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc); const x=c.getContext("2d"); if(type==="jpeg"){x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);} x.drawImage(img,0,0,c.width,c.height); let q=.85,out; do{ out=c.toDataURL("image/"+type,q); q-=.1; }while(out.length>limit&&q>.2); res(out.length>limit?null:out); }; img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
+async function pushShop(){ localStorage.setItem("shopSettings",JSON.stringify(shop)); localStorage.setItem("menuVisibility",shop.menuVisibility||"{}"); applyShop(); await post({type:"Settings",rows:SHOP_KEYS.map(k=>[k,shop[k]||""])}); }
+async function saveWhatsAppNumber(){
+  const input=document.getElementById("setWhatsApp");
+  const number=String(input.value||"").replace(/\D/g,"").slice(-10);
+  if(!/^\d{10}$/.test(number)){alert("Kripya sahi 10 digit WhatsApp number daalein, bina +91 ke.");input.focus();return;}
+  shop.whatsapp=number;
+  WHATSAPP_NUMBER="91"+number;
+  await pushShop();
+  const status=document.getElementById("waAdminStatus");
+  if(status) status.innerText="✅ Saved! Orders +91"+number+" par WhatsApp honge.";
+  alert("✅ WhatsApp number save ho gaya!");
+}
+async function saveSettings(){
+  let n=document.getElementById("setName").value.trim(); if(!n){alert("Dukaan ka naam daalo");return;}
+  try{
+    let lf=document.getElementById("setLogo").files[0], bf=document.getElementById("setBanner").files[0];
+    if(lf){ let d=await fileToData(lf,160,160,45000,"png")||await fileToData(lf,160,160,45000,"jpeg"); if(!d){alert("Logo bahut bhari hai, doosri image lo");return;} shop.logo=d; }
+    if(bf){ let d=await fileToData(bf,800,260,45000,"jpeg"); if(!d){alert("Pic bahut bhari hai, doosri image lo");return;} shop.banner=d; }
+  }catch(e){alert("Image padh nahi payi, doosri try karo");return;}
+  shop.name=n; shop.tag=document.getElementById("setTag").value.trim();
+  shop.whatsapp=document.getElementById("setWhatsApp").value.replace(/\D/g,"").slice(-10);
+  if(shop.whatsapp && shop.whatsapp.length!==10){alert("WhatsApp ke 10 digit number daalein");return;}
+  shop.menuVisibility=JSON.stringify({menu:document.getElementById("visMenu").checked,plans:document.getElementById("visPlans").checked,why:document.getElementById("visWhy").checked,faq:document.getElementById("visFaq").checked,contact:document.getElementById("visContact").checked});
+  [["plan1","setP1"],["plan2","setP2"],["plan3","setP3"]].forEach(a=>{ let v=document.getElementById(a[1]).value.trim(); if(v) shop[a[0]]=v; });
+  let up=document.getElementById("setUpi").value.trim(); if(up&&!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(up)){alert("UPI ID galat hai (jaise naam@upi)");return;} shop.upi=up;
+  shop.reviews=document.getElementById("setRev").value.trim(); shop.phone=document.getElementById("setPhone").value.trim(); shop.addr=document.getElementById("setAddr").value.trim();
+  await pushShop(); document.getElementById("setLogo").value=""; document.getElementById("setBanner").value="";
+  alert("✅ Shop Settings Save! Sabko dikhega.");
+}
+async function removeShopImg(k){ shop[k]=""; await pushShop(); alert("✅ Hata diya"); }
+let cart = {};
+let allOrders = [];
+let allSubs = [];
+let weekDays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+let weekMenu = {"Monday":"Dal Tadka, Jeera Rice, 4 Roti, Salad","Tuesday":"Paneer, Dal, 4 Roti, Rice","Wednesday":"Mix Veg, Dal, 4 Roti, Rice","Thursday":"Chole, Rice, 4 Roti, Salad","Friday":"Paneer Do Pyaza, Dal, 4 Roti, Rice","Saturday":"Special - Paneer + Gulab Jamun","Sunday":"Maharaja Thali - Full Special"};
+let closedDays = [];
+
+let defaultThalis = [
+{name:"Mini Thali",price:99,items:"Dal Tadka, Jeera Rice, 2 Roti, Salad, Papad",img:"https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400",tag:"Light"},
+{name:"Special Thali",price:149,items:"Paneer, Dal, Jeera Rice, 3 Roti, Salad, Papad",img:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400",tag:"Bestseller ⭐"},
+{name:"Maharaja Thali",price:249,items:"Paneer, Dal Makhani, Mix Veg, Jeera Rice, 4 Roti, Gulab Jamun, Salad",img:"https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400",tag:"Full Family"}
+];
+let allThalis = [...defaultThalis];
+
+function getMenuVisibility(){
+ try{return JSON.parse(shop.menuVisibility||localStorage.getItem("menuVisibility")||"{}");}catch(e){return {};}
+}
+function applyMenuVisibility(){
+ const v=getMenuVisibility(), map={menu:["#dailymenu","#orderMenu","#thali"],plans:["#plans"],why:["#whyus"],faq:["#faq"],contact:["#contact"]};
+ Object.keys(map).forEach(k=>map[k].forEach(sel=>{document.querySelectorAll(sel).forEach(el=>el.style.display=v[k]===false?"none":"");}));
+ const navMap={menu:'a[href="#dailymenu"]',plans:'a[href="#plans"]',why:'a[href="#whyus"]',faq:'a[href="#faq"]',contact:'a[href="#contact"]'};
+ Object.keys(navMap).forEach(k=>{let el=document.querySelector(".nav "+navMap[k]);if(el)el.style.display=v[k]===false?"none":"";});
+}
+function renderUpiAdminPreview(){
+ const el=document.getElementById("upiAdminPreview"); if(!el)return;
+ const upi=(document.getElementById("setUpi")?.value||shop.upi||"").trim();
+ if(!upi){el.innerHTML="UPI ID daalein; Save karne par payment QR/link generate hoga.";return;}
+ const link="upi://pay?pa="+encodeURIComponent(upi)+"&pn="+encodeURIComponent(shop.name)+"&cu=INR";
+ const qr="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+encodeURIComponent(link);
+ el.innerHTML='<b>Auto UPI QR Preview</b><br><img style="width:150px;height:150px" src="'+qr+'" alt="UPI QR"><br><a href="'+link+'">UPI Payment Link</a>';
+}
+function showTab(t,btn){ ["home","menu","thali","subs","admin"].forEach(x=>document.getElementById("tab-"+x).style.display = x===t?"block":"none"); document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active")); if(btn)btn.classList.add("active"); }
+function renderItems(){
+  let q = (document.getElementById("search").value||"").toLowerCase();
+  let html=""; items.forEach((it,i)=>{ if(it.name.toLowerCase().includes(q)){ let c=cart["item_"+i]||0; html+=`<div class="card"><img src="${it.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${it.name}</b><div class="price">₹${it.price} / ${it.unit}</div></div><div>${c==0?`<div style="display:flex;flex-direction:column;gap:5px"><button class="btn" onclick="addItem(${i})">ADD +</button><button class="btn" style="background:#166534" onclick="directProductOrder(${i})">ORDER NOW</button></div>`:`<div class="qty"><button onclick="minusItem(${i})">-</button><b>${c}</b><button onclick="addItem(${i})">+</button></div>`}</div></div>`; }});
+  document.getElementById("itemsList").innerHTML=html;
+}
+function addItem(i){cart["item_"+i]=(cart["item_"+i]||0)+1;renderItems();updateCartText();}
+function directProductOrder(i){
+ cart={}; cart["item_"+i]=1; renderItems(); updateCartText();
+ const det=document.getElementById("cartDet"); det.open=true;
+ setTimeout(()=>document.getElementById("cname").focus(),100);
+}
+function minusItem(i){cart["item_"+i]--;if(cart["item_"+i]<=0)delete cart["item_"+i];renderItems();updateCartText();}
+function renderThali(){
+  let html=""; allThalis.forEach((t,i)=>{let q=cart["thali_"+i]||0; html+=`<div class="card"><img src="${t.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${t.name}</b> <span style="background:#fff3cd;font-size:11px;padding:2px 6px;border-radius:10px">${t.tag}</span><div style="font-size:12px;color:#555">${t.items}</div><div class="price">₹${t.price} / Plate</div></div><div>${q==0?`<button class="btn" onclick="addThali(${i})">ADD +</button>`:`<div class="qty"><button onclick="minusThali(${i})">-</button><b>${q}</b><button onclick="addThali(${i})">+</button></div>`}</div></div>`;});
+  document.getElementById("thaliList").innerHTML=html;
+}
+function addThali(i){cart["thali_"+i]=(cart["thali_"+i]||0)+1;renderThali();updateCartText();}
+function minusThali(i){cart["thali_"+i]--;if(cart["thali_"+i]<=0)delete cart["thali_"+i];renderThali();updateCartText();}
+function updateCartText(){
+  let total=0,txt=""; for(let k in cart){ if(k.startsWith("thali_")){let idx=k.replace("thali_",""); total+=allThalis[idx].price*cart[k]; txt+=allThalis[idx].name+" x "+cart[k]+", ";} else {let idx=k.replace("item_",""); total+=items[idx].price*cart[k]; txt+=items[idx].name+" x "+cart[k]+", ";} }
+  document.getElementById("cartText").innerText = total==0?"Kuch nahi hai":txt+" | Total ₹"+total; document.getElementById("cartMini").innerText = total==0?"Kuch nahi hai":"₹"+total;
+}
+function orderOnWhatsApp(){
+  let tdy=todayStr();
+  if(closedDays.find(c=>c.date===tdy)){alert("Aaj Dukaan Band Hai 🙏");return;}
+  // Checkout ke waqt WhatsApp number missing ho to user/admin se lein
+  if(!numOk()){
+    let entered=prompt("Order receive karne wala WhatsApp number daalein (10 digit, bina +91 ke):", shop.whatsapp||"");
+    if(entered===null) return;
+    entered=String(entered).replace(/\D/g,"").slice(-10);
+    if(!/^\d{10}$/.test(entered)){alert("Sahi 10 digit WhatsApp number daalein.");return;}
+    shop.whatsapp=entered; WHATSAPP_NUMBER="91"+entered;
+    try{localStorage.setItem("shopSettings",JSON.stringify(shop));}catch(e){}
+    applyShop();
+  }
+  let name=document.getElementById("cname").value.trim(), mobile=document.getElementById("cmobile").value.trim(), addr=document.getElementById("caddress").value.trim();
+  if(!name||!mobile||!addr){alert("Naam, Mobile, Address bharo");return;}
+  let total=0, orderItems=""; for(let k in cart){ if(k.startsWith("thali_")){let idx=k.replace("thali_",""); total+=allThalis[idx].price*cart[k]; orderItems+=allThalis[idx].name+" ("+cart[k]+" Plate), ";} else {let idx=k.replace("item_",""); total+=items[idx].price*cart[k]; orderItems+=items[idx].name+" x "+cart[k]+", ";} }
+  if(!total){alert("Cart khali hai");return;}
+  let pay=document.querySelector('input[name="pay"]:checked').value;
+  let o={id:"ORD"+Math.floor(Math.random()*10000),name:name,mobile:mobile,addr:addr,items:orderItems,total:total,pay:pay,time:new Date().toLocaleString("hi-IN"),status:"Pending"};
+  
+  saveToSheet("Orders",[o.id,o.name,o.mobile,o.addr,o.items,o.total,o.pay,o.status,"",o.time,"",o.pay==="COD"?"COD":"Unpaid"]);
+  let msg="*🍽️ NEW ORDER - "+shop.name+"*\n\nName: "+name+"\nMobile: "+mobile+"\nAddress: "+addr+"\nOrder: "+orderItems+"\nTotal: ₹"+total+"\nPayment: "+pay+"\nOrder ID: "+o.id;
+  waOpen(WHATSAPP_NUMBER,msg);
+  let payAmt=pay==="Online"?total:pay==="Half Advance"?Math.ceil(total/2):0;
+  cart={}; renderItems(); renderThali(); updateCartText();
+  if(payAmt&&shop.upi) showPay(payAmt,o.id,"Orders",mobile,o.id); else alert("✅ Order bhej diya! Sheet me bhi save ho gaya.");
+}
+function saveSub(){
+  let s={name:document.getElementById("sname").value,mobile:document.getElementById("smobile").value,addr:document.getElementById("saddr").value,b:document.getElementById("sb").value,l:document.getElementById("sl").value,d:document.getElementById("sd").value,days:document.getElementById("sdays").value,date:todayStr()};
+  if(!s.name||!s.mobile){alert("Naam aur Mobile bharo");return;}
+  if(!numOk()){alert("WHATSAPP_NUMBER set nahi hai. Code me apna number daalo.");return;}
+  
+  saveToSheet("Subs",[s.name,s.mobile,s.addr,s.b,s.l,s.d,s.days,s.date,"","Active","","Unpaid"]);
+  let msg="*📦 NEW SUBSCRIPTION*\n\nName: "+s.name+"\nMobile: "+s.mobile+"\nAddress: "+s.addr+"\nBreakfast: "+s.b+"\nLunch: "+s.l+"\nDinner: "+s.d+"\nDays: "+s.days;
+  waOpen(WHATSAPP_NUMBER,msg);
+  let sub=0; [s.b,s.l,s.d].forEach(v=>{ let m=/^On.*₹(\d+)/.exec(v); if(m) sub+=parseInt(m[1]); });
+  let amt=Math.round(sub*parseInt(s.days)/30);
+  if(amt&&shop.upi) showPay(amt,"SUB-"+String(s.mobile).slice(-4),"Subs",s.mobile,s.date); else alert("✅ Subscribe ho gaya!");
+}
+const ADMIN_HASH="a527cabf69aa7bf803e57e1121d52b2a1bf8e641b3c481489a6e6f1094f05a43";
+async function localPassOk(pw){
+  try{ if(!(window.crypto&&crypto.subtle)) return null;
+    const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(pw));
+    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")===ADMIN_HASH;
+  }catch(e){return null;}
+}
+async function loginAdmin(refresh){
+  let pw = refresh===true ? adminPass : document.getElementById("adminPass").value;
+  if(!pw){alert("Password daalo");return;}
+  let ok = refresh===true ? true : await localPassOk(pw);
+  if(ok===false){alert("Galat Password");return;}
+  adminPass=pw;
+  try{
+    const r=await fetch(SHEET_URL+"?action=admin&pass="+encodeURIComponent(pw)); const d=await r.json();
+    if(!d.ok){adminPass="";document.getElementById("adminBox").style.display="none";alert("Galat Password");return;}
+    applySheetData(d);
+    document.getElementById("adminBox").style.display="block";
+    fillShopForm(); showOrders(); showSubs(); renderWeekAdmin(); showClosedList(); checkShopClosed(); renderItems(); showTodayMenu();
+  }catch(e){
+    if(ok===true){ document.getElementById("adminBox").style.display="block"; alert("Login ho gaya, par Sheet connect nahi hua. Neeche '🔗 Sheet Connection' me Apps Script URL daalo."); }
+    else { adminPass=""; alert("Sheet se connect nahi hua. Internet check karo."); }
+  }
+}
+function addProduct(){ let n=document.getElementById("pName").value,p=document.getElementById("pPrice").value,u=document.getElementById("pUnit").value; if(!n||!p){alert("Naam aur Price dalo");return;} items.push({name:n,price:parseInt(p),unit:u,img:DEFAULT_IMG}); saveToSheet("Products",[n,p,u,"","Product"]); renderItems(); alert("✅ Item Add Ho Gaya, Sheet me bhi gaya!"); }
+function showOrders(){
+  let html=""; [...allOrders].reverse().forEach(o=>{ let idx=allOrders.indexOf(o); let btns=""; if(o.status==="Pending") btns=`<button onclick="confirmOrder(${idx})" style="background:var(--pri);color:#fff;width:48%;padding:10px;border:none;border-radius:8px">✅ Confirm</button><button onclick="rejectOrder(${idx})" style="background:red;color:#fff;width:48%;padding:10px;border:none;border-radius:8px">❌ Reject</button>`; else if(o.status==="Confirmed") btns=`<button onclick="changeStatus(${idx},'Out for Delivery')" style="background:#ff9800;color:#fff;width:100%;padding:10px;border:none;border-radius:8px">🛵 Out For Delivery</button>`; else if(o.status==="Rejected") btns=`<div style="background:#ffe0e0;padding:8px;border-radius:8px">❌ Rejected - ${o.rejectReason||""}</div>`; else if(o.status==="Out for Delivery") btns=`<button onclick="changeStatus(${idx},'Delivered')" style="background:var(--pri);color:#fff;width:100%;padding:10px;border:none;border-radius:8px">✅ Delivered</button>`; else btns=`<div style="width:100%;text-align:center"><p style="color:green;margin:0 0 6px">✅ Delivered</p><button onclick="sendReceipt(${idx})" style="background:var(--dark);color:#fff;width:100%;padding:10px;border:none;border-radius:8px">🧾 Receipt Dobara Bhejo</button></div>`;
+  html+=`<div style="background:#f9f9f9;padding:10px;border-radius:10px;margin:6px 0"><b>${o.id} - ${o.name}</b> - ${o.status}<br><span style="font-size:13px">${o.items}<br>₹${o.total} | ${o.pay} | ${o.addr}</span>${payInfo(o,idx)}<div style="display:flex;gap:6px;margin-top:8px">${btns}</div></div>`;});
+  document.getElementById("ordersList").innerHTML=html||"Koi order nahi hai";
+}
+function confirmOrder(idx){ allOrders[idx].status="Confirmed"; updateOrderStatusInSheet(allOrders[idx].id,"Confirmed"); showOrders(); alert("✅ Confirm ho gaya, Sheet me bhi update ho gaya"); }
+function rejectOrder(idx){ let reason=prompt("Reject kyun kar rahe ho?","Item khatam ho gaya hai"); if(reason===null) return; allOrders[idx].status="Rejected"; allOrders[idx].rejectReason=reason; updateOrderStatusInSheet(allOrders[idx].id,"Rejected",reason); showOrders(); let o=allOrders[idx]; let msg="*❌ ORDER REJECTED*\nNamaste "+o.name+" ji, Maaf kijiye 🙏\nOrder Reject karna pada.\nReason: "+reason+"\nOnline Payment hai to 24 ghante me Refund ho jayega."; waOpen("91"+String(o.mobile).replace(/[^0-9]/g,"").slice(-10),msg); }
+function changeStatus(idx,s){
+  let o=allOrders[idx];
+  if(s==="Delivered"&&o.pay!=="COD"&&o.payStatus!=="Paid"){ if(!confirm("Payment abhi 'Paid' mark nahi hai. Aa gaya? OK dabane par receipt me 'Paid' likha jayega.")) return; o.payStatus="Paid"; post({type:"Orders",action:"markPaid",key:o.id}); }
+  o.status=s; updateOrderStatusInSheet(o.id,s); showOrders();
+  if(s==="Delivered") sendReceipt(idx);
+}
+function payInfo(o,idx){
+  if(o.pay==="COD"||o.status==="Rejected") return "";
+  let dup=o.utr&&allOrders.filter(x=>x.utr===o.utr).length>1, paid=o.payStatus==="Paid";
+  let col=paid?"green":o.utr?"#b45309":"#b91c1c";
+  let t=paid?"✅ Paid":o.utr?"UTR aaya - bank me match karo":"❌ Payment / UTR baaki";
+  return '<div style="font-size:13px;margin-top:4px;color:'+col+'">💳 '+t+(o.utr?' | UTR: <b>'+o.utr+'</b>':'')+(dup?' ⚠️ DUPLICATE UTR':'')+'</div>'+(paid?'':'<button onclick="markPaid('+idx+')" style="margin-top:4px;background:#fff;border:1px solid green;color:green;border-radius:8px;padding:6px 10px">💰 Paid Mark Karo</button>');
+}
+function markPaid(idx){ let o=allOrders[idx]; o.payStatus="Paid"; post({type:"Orders",action:"markPaid",key:o.id}); showOrders(); }
+function markSubPaid(i){ let u=allSubs[i]; u.payStatus="Paid"; post({type:"Subs",action:"markPaid",mobile:u.mobile,key:u.date}); showSubs(); }
+function sendReceipt(idx){
+  let o=allOrders[idx], tot=parseInt(o.total)||0;
+  let paid=o.pay==="Online"?tot:o.pay==="Half Advance"?Math.ceil(tot/2):0, due=tot-paid, pl;
+  if(o.pay==="Online") pl="Payment: ✅ Paid (UPI/Online) ₹"+tot;
+  else if(o.pay==="Half Advance") pl="Advance Paid: ₹"+paid+"\nBaaki (delivery par): ₹"+due+" ✅ Received";
+  else pl="Payment: ✅ Cash on Delivery ₹"+tot+" received";
+  let msg="*🧾 PAYMENT RECEIPT - "+shop.name+"*\n\nReceipt No: R-"+o.id+"\nDate: "+new Date().toLocaleString("en-IN")+"\nName: "+o.name+"\nOrder ID: "+o.id+"\nItems: "+o.items+"\n\n*Total: ₹"+tot+"*\n"+pl+"\nStatus: ✅ Delivered"+(shop.phone?"\n\nSawal ho to call: "+shop.phone:"")+"\n\nDhanyavaad! 🙏 "+shop.name;
+  waOpen("91"+String(o.mobile).replace(/[^0-9]/g,"").slice(-10),msg);
+}
+function showSubs(){ let html=""; allSubs.forEach((s,i)=>{ let paid=s.payStatus==="Paid"; html+=`<div style="background:#f9f9f9;padding:10px;border-radius:10px;margin:6px 0"><b>${s.name} - ${s.mobile}</b><br>${s.b} | ${s.l} | ${s.d} | ${s.days} Din | Start: ${s.date}<div style="font-size:13px;margin-top:4px;color:${paid?"green":s.utr?"#b45309":"#b91c1c"}">💳 ${paid?"✅ Paid":s.utr?"UTR aaya - bank me match karo":"❌ Payment / UTR baaki"}${s.utr?" | UTR: <b>"+s.utr+"</b>":""}</div>${paid?"":`<button onclick="markSubPaid(${i})" style="margin-top:4px;background:#fff;border:1px solid green;color:green;border-radius:8px;padding:6px 10px">💰 Paid Mark Karo</button>`}</div>`;}); document.getElementById("subsList").innerHTML=html||"Koi Subs nahi hai"; }
+function renderWeekAdmin(){ let html=""; weekDays.forEach(d=>{ html+=`<label>${d}</label><input id="menu_${d}" value="${weekMenu[d]||""}">`;}); document.getElementById("weekMenuAdmin").innerHTML=html; }
+function saveWeekMenu(){ weekDays.forEach(d=>{ weekMenu[d]=document.getElementById("menu_"+d).value; }); post({type:"WeekMenu",rows:weekDays.map(d=>[d,weekMenu[d]])}); showTodayMenu(); alert("✅ 7 Day Menu Save - Sheet me bhi gaya!"); }
+function showTodayMenu(){ let today=new Date().toLocaleDateString("en-US",{weekday:"long"}); let tomorrow=new Date(Date.now()+86400000).toLocaleDateString("en-US",{weekday:"long"}); let el=document.getElementById("todayMenuBox"); if(el) el.innerHTML=`<div style="background:#fff;margin:10px;padding:15px;border-radius:12px;border:2px solid var(--pri)"><h3 style="margin:0">🍽️ Aaj Ka Menu - ${today}</h3><p style="font-weight:bold">${weekMenu[today]||""}</p><div style="background:#fff3cd;padding:10px;border-radius:8px"><b>Kal Ka Menu - ${tomorrow}:</b><br>${weekMenu[tomorrow]||""}</div></div>`; }
+function markShopClosed(){ let date=document.getElementById("closedDate").value, reason=document.getElementById("closedReason").value||"Dukaan Band Hai"; if(!date){alert("Date select karo");return;} if(closedDays.find(c=>c.date===date)){alert("Ye date pehle se band hai");return;} closedDays.push({date,reason}); saveToSheet("ClosedDays",[date,reason]); let c=0; allSubs.forEach(s=>{ let start=new Date(s.date); let end=new Date(start); end.setDate(start.getDate()+parseInt(s.days)); if(new Date(date)>=start && new Date(date)<=end){ s.days=(parseInt(s.days)+1).toString(); c++; }}); alert("✅ "+date+" ko Dukaan Band! "+c+" Subs ka 1 Din Auto Extend ho gaya, Sheet me bhi gaya!"); showClosedList(); showSubs(); checkShopClosed(); }
+function showClosedList(){ let html=""; closedDays.forEach(c=>{ html+=`<div style="background:#fff;padding:8px;border-radius:8px;margin:4px 0">${c.date} - ${c.reason}</div>`;}); document.getElementById("closedList").innerHTML=html; }
+function checkShopClosed(){ let tdy=todayStr(); let closed=closedDays.find(c=>c.date===tdy); let b=document.getElementById("shopClosedBanner"); if(closed){ b.style.display="block"; b.innerText="🚫 AAJ DUKAAN BAND HAI - "+closed.reason+" | Subscription 1 Din Auto Extend Ho Gaya Hai"; let ob=document.getElementById("orderBtn"); if(ob){ob.disabled=true; ob.innerText="Aaj Dukaan Band Hai";} } }
+function sendTomorrowToAllSubs(){ let tomorrow=new Date(Date.now()+86400000).toLocaleDateString("en-US",{weekday:"long"}); let menu=weekMenu[tomorrow]; let html=""; allSubs.forEach(s=>{ let msg="*🍽️ KAL KA MENU*\n\nNamaste "+s.name+" ji!\nKal ("+tomorrow+") ka Menu:\n"+menu+"\nAapka Tiffin time pe pahuch jayega."; let num="91"+s.mobile.replace(/[^0-9]/g,"").slice(-10); html+=`<a href="https://wa.me/${num}?text=${encodeURIComponent(msg)}" target="_blank" style="display:block;background:var(--pri);color:#fff;text-align:center;padding:10px;border-radius:8px;text-decoration:none;margin:4px 0">📲 ${s.name} Ko Kal Ka Menu Bhejo</a>`;}); document.getElementById("tomorrowReminderList").innerHTML=html||"Koi Subs nahi hai"; }
+document.getElementById("sheetUrlInput").value=SHEET_URL; renderSite(); applyShop(); renderItems(); renderThali(); showTodayMenu(); showClosedList(); checkShopClosed(); loadPublic();
+</script>
+</body>
+</html>
