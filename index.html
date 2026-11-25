@@ -204,6 +204,11 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 <input id="thPrompt" placeholder="AI theme idea: jaise Diwali, hara-fresh, royal...">
 <div style="display:flex;gap:6px"><button type="button" onclick="aiTheme()" style="flex:2;background:var(--pri);color:#fff;padding:11px;border:none;border-radius:8px;font-weight:bold">✨ AI Theme Banao</button><button type="button" onclick="saveTheme()" style="flex:1;background:#166534;color:#fff;padding:11px;border:none;border-radius:8px;font-weight:bold">💾 Save</button><button type="button" onclick="resetTheme()" style="flex:1;background:#eee;padding:11px;border:none;border-radius:8px">Reset</button></div>
 <div id="themeStatus" class="sm" style="margin:4px 0 10px"></div>
+<label style="margin-top:8px;display:block">📸 Photo Source (item + banner)</label>
+<select id="photoModeIn"><option value="">Auto (AI key ho to AI, warna real food photo)</option><option value="real">Sirf real food photo (koi limit nahi)</option><option value="ai">Sirf AI (free limit aa sakti hai)</option></select>
+<input id="aiKeyIn" placeholder="AI Key (optional) pk_... - enter.pollinations.ai se free">
+<button type="button" onclick="saveAiKey()" style="background:#eee;width:100%;padding:10px;border:none;border-radius:8px;font-weight:bold">💾 Photo Settings Save Karo</button>
+<div class="sm" style="margin:4px 0 10px">Free AI ki limit har visitor ke liye alag katti hai, isliye bina key ke "real food photo" sabse bharosemand hai. Photo ban jaane ke baad phone me save rehti hai. Key sabko dikhne wali settings me jaati hai, isliye sirf "pk_" publishable key daalo.</div>
 <input id="banPrompt" placeholder="Banner idea (khali chhodo = dukaan ke naam se auto)">
 <button type="button" onclick="aiBanner()" style="background:var(--pri);color:#fff;width:100%;padding:11px;border:none;border-radius:8px;font-weight:bold">🖼️ AI Banner Banao</button>
 <img id="banPrev" alt="Banner preview" style="display:none;width:100%;border-radius:10px;margin-top:6px;background:#eee">
@@ -214,8 +219,9 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 <div style="display:flex;gap:6px;margin-top:6px"><button onclick="removeShopImg('logo')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#eee">Logo Hatao</button><button onclick="removeShopImg('banner')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#eee">Pic Hatao</button></div>
 
 <h3 style="margin-top:20px">➕ Naya Item Add Karo</h3>
-<input id="pName" placeholder="Item Naam" oninput="previewAiImg()"><img id="pImgPrev" alt="AI photo preview" style="display:none;width:120px;height:120px;object-fit:cover;border-radius:10px;margin:4px 0;background:#eee"><div class="sm" style="margin-bottom:4px">📸 Photo naam se AI khud banata hai</div><input id="pPrice" type="number" placeholder="Price"><select id="pUnit"><option>Kg</option><option>Gram</option><option>Piece</option><option>Plate</option></select>
-<button onclick="addProduct()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">Item Add Karo</button>
+<input id="pName" placeholder="Item Naam" oninput="previewAiImg()"><img id="pImgPrev" alt="AI photo preview" style="display:none;width:120px;height:120px;object-fit:cover;border-radius:10px;margin:4px 0;background:#eee"><div class="sm" style="margin-bottom:4px">📸 Photo naam se apne aap aati hai</div><input id="pPrice" type="number" placeholder="Price"><select id="pUnit"><option>Kg</option><option>Gram</option><option>Piece</option><option>Plate</option></select>
+<input id="pStock" type="number" min="0" placeholder="Stock / Qty limit (khali = unlimited)"><button onclick="addProduct()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">Item Add Karo</button>
+<h3 style="margin-top:20px">📦 Stock / Qty Limit</h3><p class="sm" style="margin:0 0 6px">Qty daalo (jaise 20). Order confirm hote hi stock ghatta hai, 0 hote hi "Out of Stock" dikhta hai aur order nahi ho sakta. Khali = unlimited.</p><div id="stockAdmin"></div>
 <h3 style="margin-top:20px">🗑️ Item Hatao</h3><div id="adminItemsList"></div>
 
 <h3 style="margin-top:20px">📅 7 Day Menu</h3><div id="weekMenuAdmin"></div>
@@ -274,7 +280,7 @@ async function updateOrderStatusInSheet(id,status,rejectReason=""){ return post(
 const rowsOf=a=>Array.isArray(a)?a:[];
 function applySheetData(d){
   items=[...baseItems];
-  rowsOf(d.Products).forEach(r=>{ if(r[0]&&!isNaN(parseInt(r[1]))) items.push({name:r[0],price:parseInt(r[1]),unit:r[2]||"Plate",img:aiImg(r[0])}); });
+  rowsOf(d.Products).forEach(r=>{ if(r[0]&&!isNaN(parseInt(r[1]))) items.push({name:r[0],price:parseInt(r[1]),unit:r[2]||"Plate",img:"",ai:true}); });
   rowsOf(d.WeekMenu).forEach(r=>{ if(weekDays.includes(r[0])) weekMenu[r[0]]=r[1]||""; });
   closedDays=rowsOf(d.ClosedDays).filter(r=>/^\d{4}-\d\d-\d\d$/.test(r[0])).map(r=>({date:r[0],reason:r[1]||"Dukaan Band Hai"}));
   rowsOf(d.Settings).forEach(r=>{ if(SHOP_KEYS.includes(r[0])){ if(!r[1]&&["name","plan1","plan2","plan3"].includes(r[0])) return; shop[r[0]]=r[1]||""; } });
@@ -397,7 +403,7 @@ const baseItems = [
 let items = [...baseItems];
 let adminPass = "";
 let shop = {name:"Tawa Theory",tag:"ROTI • NACHO • FUSION",logo:"",banner:"",plan1:"99",plan2:"70",plan3:"60",phone:"",whatsapp:"",addr:"",reviews:"",upi:"",removedItems:""};
-const SHOP_KEYS=["name","tag","logo","banner","plan1","plan2","plan3","phone","whatsapp","addr","reviews","upi","menuVisibility","removedItems","theme","autoDaily","dayThemes","special","specialDate"];
+const SHOP_KEYS=["name","tag","logo","banner","plan1","plan2","plan3","phone","whatsapp","addr","reviews","upi","menuVisibility","removedItems","theme","autoDaily","dayThemes","special","specialDate","aiKey","photoMode","bannerIdea","bannerSeed","stock"];
 try{ Object.assign(shop, JSON.parse(localStorage.getItem("shopSettings")||"{}")); }catch(e){}
 function applyShop(){
   let l=document.getElementById("hdrLogo"), h=document.getElementById("hdr");
@@ -486,7 +492,7 @@ function renderUpiAdminPreview(){
 function showTab(t,btn){ ["home","menu","thali","subs","admin"].forEach(x=>document.getElementById("tab-"+x).style.display = x===t?"block":"none"); document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active")); if(btn)btn.classList.add("active"); }
 function renderItems(){
   let q = (document.getElementById("search").value||"").toLowerCase();
-  let html=""; items.forEach((it,i)=>{ if(it.name.toLowerCase().includes(q)){ let c=cart["item_"+i]||0; html+=`<div class="card"><img loading="lazy" src="${it.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${it.name}</b><div class="price">₹${it.price} / ${it.unit}</div></div><div>${c==0?`<div style="display:flex;flex-direction:column;gap:5px"><button class="btn" onclick="addItem(${i})">ADD +</button><button class="btn" style="background:#166534" onclick="directProductOrder(${i})">ORDER NOW</button></div>`:`<div class="qty"><button onclick="minusItem(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${c}" onchange="setQty('item_${i}',this.value)"><button onclick="addItem(${i})">+</button><button class="del" title="Hatao" onclick="setQty('item_${i}',0)">🗑</button></div>`}</div></div>`; }});
+  let html=""; items.forEach((it,i)=>{ if(it.name.toLowerCase().includes(q)){ let c=cart["item_"+i]||0; html+=`<div class="card"><img loading="lazy" ${imgAttr(it)} onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${it.name}</b><div class="price">₹${it.price} / ${it.unit}</div>${stockNote(it.name)}</div><div>${stockLeft(it.name)<1?'<div class="oos">❌ Out of Stock</div>':c==0?`<div style="display:flex;flex-direction:column;gap:5px"><button class="btn" onclick="addItem(${i})">ADD +</button><button class="btn" style="background:#166534" onclick="directProductOrder(${i})">ORDER NOW</button></div>`:`<div class="qty"><button onclick="minusItem(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${c}" onchange="setQty('item_${i}',this.value)"><button onclick="addItem(${i})">+</button><button class="del" title="Hatao" onclick="setQty('item_${i}',0)">🗑</button></div>`}</div></div>`; }});
   document.getElementById("itemsList").innerHTML=html; renderAdminItems();
 }
 function addItem(i){cart["item_"+i]=(cart["item_"+i]||0)+1;renderItems();updateCartText();}
@@ -496,7 +502,7 @@ function directProductOrder(i){
 }
 function minusItem(i){cart["item_"+i]--;if(cart["item_"+i]<=0)delete cart["item_"+i];renderItems();updateCartText();}
 function renderThali(){
-  let html=""; allThalis.forEach((t,i)=>{let q=cart["thali_"+i]||0; html+=`<div class="card"><img src="${t.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${t.name}</b> <span style="background:#fff3cd;font-size:11px;padding:2px 6px;border-radius:10px">${t.tag}</span><div style="font-size:12px;color:#555">${t.items}</div><div class="price">₹${t.price} / Plate</div></div><div>${q==0?`<button class="btn" onclick="addThali(${i})">ADD +</button>`:`<div class="qty"><button onclick="minusThali(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${q}" onchange="setQty('thali_${i}',this.value)"><button onclick="addThali(${i})">+</button><button class="del" title="Hatao" onclick="setQty('thali_${i}',0)">🗑</button></div>`}</div></div>`;});
+  let html=""; allThalis.forEach((t,i)=>{let q=cart["thali_"+i]||0; html+=`<div class="card"><img src="${t.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${t.name}</b> <span style="background:#fff3cd;font-size:11px;padding:2px 6px;border-radius:10px">${t.tag}</span><div style="font-size:12px;color:#555">${t.items}</div><div class="price">₹${t.price} / Plate</div></div><div>${stockLeft(t.name)<1?'<div class="oos">❌ Out of Stock</div>':q==0?`<button class="btn" onclick="addThali(${i})">ADD +</button>`:`<div class="qty"><button onclick="minusThali(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${q}" onchange="setQty('thali_${i}',this.value)"><button onclick="addThali(${i})">+</button><button class="del" title="Hatao" onclick="setQty('thali_${i}',0)">🗑</button></div>`}</div></div>`;});
   document.getElementById("thaliList").innerHTML=html;
 }
 function addThali(i){cart["thali_"+i]=(cart["thali_"+i]||0)+1;renderThali();updateCartText();}
@@ -593,7 +599,7 @@ async function removeProduct(i){
   await pushShop();
   alert("✅ Item hata diya, ab customers ko nahi dikhega.");
 }
-function addProduct(){ let n=document.getElementById("pName").value,p=document.getElementById("pPrice").value,u=document.getElementById("pUnit").value; if(!n||!p){alert("Naam aur Price dalo");return;} let rl=removedList(); if(rl.includes(n)){ shop.removedItems=JSON.stringify(rl.filter(x=>x!==n)); pushShop(); } items.push({name:n,price:parseInt(p),unit:u,img:aiImg(n)}); saveToSheet("Products",[n,p,u,"","Product"]); renderItems(); alert("✅ Item Add Ho Gaya, Sheet me bhi gaya!"); }
+function addProduct(){ let n=document.getElementById("pName").value,p=document.getElementById("pPrice").value,u=document.getElementById("pUnit").value; if(!n||!p){alert("Naam aur Price dalo");return;} let rl=removedList(); if(rl.includes(n)){ shop.removedItems=JSON.stringify(rl.filter(x=>x!==n)); pushShop(); } items.push({name:n,price:parseInt(p),unit:u,img:"",ai:true}); saveToSheet("Products",[n,p,u,"","Product"]); renderItems(); alert("✅ Item Add Ho Gaya, Sheet me bhi gaya!"); }
 function showOrders(){
   let html=""; [...allOrders].reverse().forEach(o=>{ let idx=allOrders.indexOf(o); let btns=""; if(o.status==="Pending") btns=`<button onclick="confirmOrder(${idx})" style="background:var(--pri);color:#fff;width:48%;padding:10px;border:none;border-radius:8px">✅ Confirm</button><button onclick="rejectOrder(${idx})" style="background:red;color:#fff;width:48%;padding:10px;border:none;border-radius:8px">❌ Reject</button>`; else if(o.status==="Confirmed") btns=`<button onclick="changeStatus(${idx},'Out for Delivery')" style="background:#ff9800;color:#fff;width:100%;padding:10px;border:none;border-radius:8px">🛵 Out For Delivery</button>`; else if(o.status==="Rejected") btns=`<div style="background:#ffe0e0;padding:8px;border-radius:8px">❌ Rejected - ${o.rejectReason||""}</div>`; else if(o.status==="Out for Delivery") btns=`<button onclick="changeStatus(${idx},'Delivered')" style="background:var(--pri);color:#fff;width:100%;padding:10px;border:none;border-radius:8px">✅ Delivered</button>`; else btns=`<div style="width:100%;text-align:center"><p style="color:green;margin:0 0 6px">✅ Delivered</p><button onclick="sendReceipt(${idx})" style="background:var(--dark);color:#fff;width:100%;padding:10px;border:none;border-radius:8px">🧾 Receipt Dobara Bhejo</button></div>`;
   html+=`<div style="background:#f9f9f9;padding:10px;border-radius:10px;margin:6px 0"><b>${o.id} - ${o.name}</b> - ${o.status}<br><span style="font-size:13px">${o.items}<br>₹${o.total} | ${o.pay} | ${o.addr}</span>${payInfo(o,idx)}<div style="display:flex;gap:6px;margin-top:8px">${btns}</div></div>`;});
@@ -876,6 +882,216 @@ async function clearSpecial(){
   shop.special=""; shop.specialDate=""; document.getElementById("specialIn").value="";
   await pushShop(); refreshAuto();
 }
+
+
+// ===== PHOTO ENGINE v2 (real food photo + AI, limit-safe) =====
+// Free AI (Pollinations) ki limit hoti hai aur har visitor ki apni limit alag katati hai.
+// Isliye: bina key ke "real food photo" (Wikimedia/Flickr, no limit) chalti hai.
+// AI Key daalo ya "Sirf AI" chuno to AI use hota hai; AI fail ho to real photo fallback.
+var PQ=[],PP={},PFAIL={},BANSRC={},pBusy=false,pLast={ai:0,real:0};
+try{ Object.keys(localStorage).forEach(k=>{ if(k.indexOf("aiimg:http")===0) localStorage.removeItem(k); }); }catch(e){}
+function aiPh(){ return "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E"; }
+function aiHasKey(){ return !!String(shop.aiKey||"").trim(); }
+function photoMode(){ const m=shop.photoMode; if(m==="ai"||m==="real") return m; return aiHasKey()?"auto":"real"; }
+function photoSources(){ const m=photoMode(); return m==="ai"?["ai"]:m==="real"?["real"]:["ai","real"]; }
+function pollUrl(prompt,w,h,seed){
+  const q=encodeURIComponent(prompt), k=String(shop.aiKey||"").trim();
+  if(k) return "https://gen.pollinations.ai/image/"+q+"?model=flux&width="+w+"&height="+h+"&seed="+seed+"&nologo=true&key="+encodeURIComponent(k);
+  return "https://image.pollinations.ai/prompt/"+q+"?width="+w+"&height="+h+"&nologo=true&seed="+seed;
+}
+function aiPrompt(name,wide){
+  return wide?"wide panoramic food banner photo, "+name+", Indian thali, warm and appetizing, no text, no logo"
+             :"appetizing professional food photo of "+name+", Indian cuisine, served on a plate, top view, natural light, no text";
+}
+async function realUrl(name,w,h,seed){
+  try{
+    const r=await fetch("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=8&gsrsearch="+encodeURIComponent(name+" food")+"&prop=imageinfo&iiprop=url%7Cmime&iiurlwidth="+w+"&format=json&origin=*");
+    const j=await r.json();
+    const pg=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).map(p=>(p.imageinfo||[])[0]).filter(ii=>ii&&/image\/(jpeg|png)/.test(ii.mime||"")&&ii.thumburl);
+    if(pg.length) return pg[seed%pg.length].thumburl;
+  }catch(e){}
+  const tags=String(name).toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(x=>x.length>2).slice(0,3).join(",");
+  return "https://loremflickr.com/"+w+"/"+h+"/"+encodeURIComponent((tags?tags+",":"")+"food")+"/all?lock="+(seed+1);
+}
+function aiCached(k){ try{ return localStorage.getItem("aiimg:"+k); }catch(e){ return null; } }
+function aiTry(url){
+  return new Promise(res=>{
+    const t=setTimeout(()=>res(null),45000), fin=v=>{ clearTimeout(t); res(v); };
+    const im=new Image(); im.crossOrigin="anonymous";
+    im.onload=()=>{ try{ const c=document.createElement("canvas"); c.width=im.naturalWidth; c.height=im.naturalHeight; c.getContext("2d").drawImage(im,0,0); fin(c.toDataURL("image/jpeg",.8)); }catch(e){ fin(url); } };
+    im.onerror=()=>{ setTimeout(()=>{ const p=new Image(); p.onload=()=>fin(url); p.onerror=()=>fin(null); p.src=url; },2000); };
+    im.src=url;
+  });
+}
+function photoKey(o){ return ["ph",photoMode(),aiHasKey()?1:0,o.w,o.h,o.seed||0,String(o.name).toLowerCase()].join("|"); }
+async function pRun(){
+  if(pBusy) return; pBusy=true;
+  while(PQ.length){
+    const job=PQ.shift(); let s=null;
+    for(const src of photoSources()){
+      const gap=src==="ai"?(aiHasKey()?1500:16000):250, wait=pLast[src]+gap-Date.now();
+      if(wait>0) await new Promise(r=>setTimeout(r,wait));
+      const url=src==="ai"?pollUrl(aiPrompt(job.name,job.w>400),job.w,job.h,job.seed):await realUrl(job.name,job.w,job.h,job.seed);
+      s=await aiTry(url); pLast[src]=Date.now();
+      if(s) break;
+    }
+    if(s&&String(s).startsWith("data:")){ try{ localStorage.setItem("aiimg:"+job.key,s); }catch(e){} }
+    job.res(s||null);
+  }
+  pBusy=false;
+}
+function photoGet(o,front){
+  const k=photoKey(o), c=aiCached(k); if(c) return Promise.resolve(c);
+  if(PFAIL[k]&&Date.now()-PFAIL[k]<180000) return Promise.resolve(null);
+  if(PP[k]) return PP[k];
+  return PP[k]=new Promise(res=>{ const job={name:o.name,w:o.w,h:o.h,seed:o.seed||0,key:k,res:res}; if(front) PQ.unshift(job); else PQ.push(job); pRun(); })
+    .then(s=>{ delete PP[k]; if(!s) PFAIL[k]=Date.now(); return s; });
+}
+// item cards
+function imgAttr(it){
+  if(!it.ai) return 'src="'+esc(it.img)+'"';
+  const c=aiCached(photoKey({name:it.name,w:240,h:240,seed:0}));
+  return c?'src="'+c+'"':'data-ph="'+esc(it.name)+'" src="'+aiPh()+'"';
+}
+function queueAiImages(){
+  document.querySelectorAll("img[data-ph]:not([data-st])").forEach(el=>{
+    el.setAttribute("data-st","1");
+    photoGet({name:el.getAttribute("data-ph"),w:240,h:240,seed:0}).then(s=>{ if(s&&el.isConnected) el.src=s; });
+  });
+}
+const _renderItemsOrig=renderItems;
+renderItems=function(){ _renderItemsOrig(); try{queueAiImages();}catch(e){} };
+function previewAiImg(){
+  clearTimeout(window._pv);
+  window._pv=setTimeout(()=>{
+    const n=document.getElementById("pName").value.trim(), el=document.getElementById("pImgPrev");
+    if(!n){ el.style.display="none"; return; }
+    el.style.display="block"; el.src=aiPh();
+    photoGet({name:n,w:240,h:240,seed:0},true).then(s=>{ if(s) el.src=s; });
+  },900);
+}
+// banner
+function bannerQuery(){
+  if(autoOn()){ const sp=todaySpecial(); if(sp){ let h=0; const k=todayStr()+sp.text; for(let i=0;i<k.length;i++){ h=(h*31+k.charCodeAt(i))>>>0; } return {name:sp.text,w:800,h:260,seed:h%1000}; } }
+  if(shop.bannerIdea) return {name:shop.bannerIdea,w:800,h:260,seed:parseInt(shop.bannerSeed)||0};
+  return null;
+}
+function setBannerBg(h,s){
+  const u=String(s).replace(/['"()\\\s]/g,c=>"%"+c.charCodeAt(0).toString(16));
+  h.style.setProperty("background","linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('"+u+"') center/cover","important");
+}
+function fixBanner(){
+  const h=document.getElementById("hdr"); if(!h) return;
+  const q=bannerQuery();
+  if(!q){ if(shop.banner&&!/^https?:/.test(String(shop.banner))) setBannerBg(h,shop.banner); return; }
+  const k=photoKey(q);
+  if(BANSRC[k]){ setBannerBg(h,BANSRC[k]); return; }
+  photoGet(q,true).then(s=>{ if(s){ BANSRC[k]=s; fixBanner(); } });
+}
+const _applyShopOrig2=applyShop;
+applyShop=function(){ const b=shop.banner; if(/^https?:/.test(String(b||""))) shop.banner=""; try{ _applyShopOrig2(); }finally{ shop.banner=b; } };
+async function aiBanner(){
+  const idea=document.getElementById("banPrompt").value.trim()||"Indian home style thali";
+  const seed=Math.floor(Math.random()*1000), q={name:idea,w:800,h:260,seed:seed};
+  const prev=document.getElementById("banPrev"), st=document.getElementById("banStatus");
+  st.innerText="🖼️ Banner ban raha hai (kuch second se 1 minute)..."; prev.style.display="block"; prev.src=aiPh();
+  const s=await photoGet(q,true);
+  if(!s){ prev.style.display="none"; st.innerText="❌ Banner nahi bana. Thodi der baad dobara try karo, ya idea alag likho (jaise: paneer thali)."; return; }
+  prev.src=s; BANSRC[photoKey(q)]=s; shop.bannerIdea=idea; shop.bannerSeed=String(seed); shop.banner="";
+  await pushShop(); st.innerText="✅ Banner lag gaya! Pasand na aaye to dobara dabao.";
+}
+const _removeShopImgOrig=removeShopImg;
+removeShopImg=async function(k){ if(k==="banner"){ shop.bannerIdea=""; shop.bannerSeed=""; } return _removeShopImgOrig(k); };
+function autoUiStatus(){
+  const st=document.getElementById("autoStatus"); if(!st) return;
+  const sp=todaySpecial(), t=autoThemeObj(), pi=t?THEME_PRESETS.findIndex(p=>p.p===t.p):-1;
+  st.innerText=autoOn()?("✅ Auto ON | Aaj: "+(sp?sp.text:"menu set nahi")+" | Theme: "+(pi>=0?THEME_PRESETS[pi].n:"special se auto rang")):"Auto OFF - manual theme/banner chal raha hai.";
+  const ap=document.getElementById("autoPrev"), q=autoOn()?bannerQuery():null;
+  if(ap){ if(q){ ap.style.display="block"; photoGet(q).then(s=>{ if(s) ap.src=s; }); } else ap.style.display="none"; }
+}
+// admin settings
+async function saveAiKey(){
+  const v=document.getElementById("aiKeyIn").value.trim(), m=document.getElementById("photoModeIn").value;
+  if(v&&!/^[\w\-]{8,}$/.test(v)){ alert("Key galat lag rahi hai. enter.pollinations.ai se 'pk_' wali key paste karo."); return; }
+  shop.aiKey=v; shop.photoMode=m; await pushShop(); renderItems(); fixBanner();
+  alert("✅ Photo settings save ho gayi.");
+}
+const _fillShopFormOrig2=fillShopForm;
+fillShopForm=function(){ _fillShopFormOrig2(); const a=document.getElementById("aiKeyIn"), b=document.getElementById("photoModeIn"); if(a) a.value=shop.aiKey||""; if(b) b.value=shop.photoMode||""; };
+renderItems();
+
+
+// ===== STOCK / QTY LIMIT =====
+// shop.stock = JSON {"Item Naam": bacha_hua_qty}. Jis item ka naam list me nahi = unlimited.
+(function(){ const st=document.createElement("style"); st.textContent=".oos{color:#b91c1c;font-weight:bold;font-size:13px;white-space:nowrap;background:#fee2e2;padding:8px 10px;border-radius:8px}.low{color:#b45309;font-size:12px;font-weight:bold}"; document.head.appendChild(st); })();
+function stockMap(){ try{ const m=JSON.parse(shop.stock||"{}"); return (m&&typeof m==="object")?m:{}; }catch(e){ return {}; } }
+function stockLeft(name){ const m=stockMap(); return Object.prototype.hasOwnProperty.call(m,name)?Math.max(0,parseInt(m[name])||0):Infinity; }
+function stockNote(name){ const l=stockLeft(name); return (l>0&&l<=5)?'<div class="low">🔥 Sirf '+l+' bacha</div>':""; }
+async function saveStock(m){ shop.stock=JSON.stringify(m); await pushShop(); renderItems(); renderThali(); updateCartText(); renderStockAdmin(); }
+function cartName(k){ const t=k.startsWith("thali_")?allThalis[k.replace("thali_","")]:items[k.replace("item_","")]; return t?t.name:null; }
+function oosAlert(name,left){ alert(left<1?("❌ '"+name+"' Out of Stock hai"):("Sirf "+left+" '"+name+"' bacha hai")); }
+
+// customer: qty limit se zyada cart me nahi ja sakta
+function addItem(i){ const it=items[i], have=cart["item_"+i]||0, left=stockLeft(it.name); if(have+1>left){ oosAlert(it.name,left); return; } cart["item_"+i]=have+1; renderItems(); updateCartText(); }
+function addThali(i){ const t=allThalis[i], have=cart["thali_"+i]||0, left=stockLeft(t.name); if(have+1>left){ oosAlert(t.name,left); return; } cart["thali_"+i]=have+1; renderThali(); updateCartText(); }
+function directProductOrder(i){ const it=items[i], left=stockLeft(it.name); if(left<1){ oosAlert(it.name,left); return; } cart={}; cart["item_"+i]=1; renderItems(); updateCartText(); openCart(); }
+function setQty(k,v){
+  v=parseInt(v); const name=cartName(k);
+  if(name!==null&&v>stockLeft(name)){ const left=stockLeft(name); oosAlert(name,left); v=left; }
+  if(!v||v<1) delete cart[k]; else cart[k]=Math.min(v,99);
+  renderItems(); renderThali(); updateCartText();
+}
+function stockOk(){
+  let bad=[];
+  for(const k of Object.keys(cart)){ const n=cartName(k); if(n===null) continue; const left=stockLeft(n); if(cart[k]>left){ bad.push(left<1?("❌ "+n+" - Out of Stock"):("⚠️ "+n+" - sirf "+left+" bacha")); if(left<1) delete cart[k]; else cart[k]=left; } }
+  if(bad.length){ alert(bad.join("\n")+"\n\nCart update kar diya hai."); renderItems(); renderThali(); updateCartText(); return false; }
+  return true;
+}
+const _orderOnWhatsAppOrig=orderOnWhatsApp;
+orderOnWhatsApp=function(){ if(!stockOk()) return; _orderOnWhatsAppOrig(); };
+
+// admin: confirm par stock ghatao
+function parseOrderItems(s){
+  return String(s||"").split(/,\s*/).map(x=>x.trim()).filter(Boolean).map(x=>{ const m=x.match(/^(.*) x (\d+)$/)||x.match(/^(.*) \((\d+) Plate\)$/); return m?{name:m[1],qty:parseInt(m[2])}:null; }).filter(Boolean);
+}
+const _confirmOrderOrig=confirmOrder;
+confirmOrder=async function(idx){
+  const o=allOrders[idx]; if(!o||o.status!=="Pending") return;
+  const lines=parseOrderItems(o.items), m=stockMap(), warn=[];
+  lines.forEach(l=>{ if(Object.prototype.hasOwnProperty.call(m,l.name)&&(parseInt(m[l.name])||0)<l.qty) warn.push(l.name+" (bacha "+(parseInt(m[l.name])||0)+", order "+l.qty+")"); });
+  if(warn.length&&!confirm("⚠️ Stock kam hai:\n"+warn.join("\n")+"\n\nPhir bhi confirm karein?")) return;
+  _confirmOrderOrig(idx);
+  let changed=false;
+  lines.forEach(l=>{ if(Object.prototype.hasOwnProperty.call(m,l.name)){ m[l.name]=Math.max(0,(parseInt(m[l.name])||0)-l.qty); changed=true; } });
+  if(changed) await saveStock(m);
+};
+
+// admin: stock editor
+function stockNames(){ return [...items.map(i=>i.name),...allThalis.map(t=>t.name)]; }
+function renderStockAdmin(){
+  const el=document.getElementById("stockAdmin"); if(!el) return;
+  const m=stockMap(), names=stockNames();
+  el.innerHTML=names.map((n,i)=>{ const has=Object.prototype.hasOwnProperty.call(m,n);
+    return '<div class="adminItem"><span style="flex:1"><b>'+esc(n)+'</b><br><span class="sm">'+(has?((parseInt(m[n])||0)>0?'Bacha: '+(parseInt(m[n])||0):'❌ Out of Stock'):'♾️ Unlimited')+'</span></span><input type="number" min="0" id="stk_'+i+'" value="'+(has?(parseInt(m[n])||0):"")+'" placeholder="∞" style="width:80px;margin:0"><button type="button" style="background:#f0fff4;color:#166534;border-color:#86efac" onclick="setStockAdmin('+i+')">💾</button></div>'; }).join("")||"Koi item nahi hai";
+}
+async function setStockAdmin(i){
+  const n=stockNames()[i]; if(n===undefined) return;
+  const v=document.getElementById("stk_"+i).value.trim(), m=stockMap();
+  if(v==="") delete m[n]; else m[n]=Math.max(0,parseInt(v)||0);
+  await saveStock(m);
+}
+const _addProductOrig=addProduct;
+addProduct=function(){
+  const n=document.getElementById("pName").value, sv=document.getElementById("pStock").value.trim(), before=items.length;
+  _addProductOrig();
+  if(items.length>before){
+    if(sv!==""){ const m=stockMap(); m[n]=Math.max(0,parseInt(sv)||0); saveStock(m); } else renderStockAdmin();
+    document.getElementById("pStock").value="";
+  }
+};
+const _fillShopFormOrig3=fillShopForm;
+fillShopForm=function(){ _fillShopFormOrig3(); renderStockAdmin(); };
+renderItems(); renderThali();
 
 applyShop();
 
