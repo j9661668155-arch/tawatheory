@@ -109,7 +109,7 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 </div>
 
 <!-- THALI -->
-<div id="thali">
+<div id="thali" style="display:none">
 <div style="background:#fff;margin:10px;padding:15px;border-radius:12px"><h3 style="margin:0">🍽️ Thali - Plate Option</h3><p style="font-size:13px;color:#666">Ek Thali me poora khana</p><div id="thaliList"></div></div>
 </div>
 
@@ -226,16 +226,16 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 <div style="display:flex;gap:6px;margin-top:6px"><button onclick="removeShopImg('logo')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#eee">Logo Hatao</button><button onclick="removeShopImg('banner')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#eee">Pic Hatao</button></div>
 
 <h3 style="margin-top:20px">➕ Naya Item Add Karo</h3>
-<input id="pName" placeholder="Item Naam"><input id="pPrice" type="number" placeholder="Price"><select id="pUnit"><option>Kg</option><option>Gram</option><option>Piece</option><option>Plate</option></select>
+<input id="pName" placeholder="Item Naam" oninput="previewProductPhoto()"><input id="pPrice" type="number" placeholder="Price"><select id="pUnit"><option>Kg</option><option>Gram</option><option>Piece</option><option>Plate</option></select>
 <textarea id="pDesc" rows="2" maxlength="160" placeholder="Item ka description (optional) - jaise: Taaza paneer, halki gravy, 2 roti ke saath" style="width:100%;padding:11px;margin:6px 0;border:1px solid #ddd;border-radius:8px;font-family:inherit"></textarea>
-<label>Item ki Photo (optional) <span class="sm">- sirf is phone/browser me rahegi, Sheet me save nahi hogi</span></label><input type="file" id="pPhoto" accept="image/*" onchange="previewProductPhoto()">
+<label>Item ki Photo (optional) <span class="sm">- upload na karo to 🪄 naam se apne aap photo ban jayegi. Upload ki hui photo sirf is phone/browser me rahegi, Sheet me save nahi hogi</span></label><input type="file" id="pPhoto" accept="image/*" onchange="previewProductPhoto()">
 <img id="pPhotoPrev" alt="" style="display:none;width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #ddd;margin:4px 0">
 <button onclick="addProduct()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">Item Add Karo</button>
 <h3 style="margin-top:20px">🗑️ Item Hatao</h3><div id="adminItemsList"></div>
 
-<h3 style="margin-top:20px">🍽️ Thali Edit Karo (Content + Photo)</h3>
+<div style="display:none"><h3 style="margin-top:20px">🍽️ Thali Edit Karo (Content + Photo)</h3>
 <p class="sm" style="margin:0 0 6px">Thali ke andar kya-kya milega wo likho. Photo sirf is phone/browser me rehti hai, Sheet me save nahi hoti.</p>
-<div id="adminThaliList"></div>
+<div id="adminThaliList"></div></div>
 <h3 style="margin-top:20px">📅 7 Day Menu</h3><div id="weekMenuAdmin"></div>
 <button onclick="saveWeekMenu()" style="background:#000;color:#fff;width:100%;padding:12px;border:none;border-radius:8px">7 Day Menu Save Karo</button>
 
@@ -289,7 +289,7 @@ async function updateOrderStatusInSheet(id,status,rejectReason=""){ return post(
 const rowsOf=a=>Array.isArray(a)?a:[];
 function applySheetData(d){
   items=[...baseItems];
-  rowsOf(d.Products).forEach(r=>{ if(r[0]&&!isNaN(parseInt(r[1]))) items.push({name:r[0],price:parseInt(r[1]),unit:r[2]||"Plate",img:localPhoto(r[0])||(/^https?:/.test(String(r[3]||""))?r[3]:DEFAULT_IMG),desc:String(r[5]||"")}); });
+  rowsOf(d.Products).forEach(r=>{ if(r[0]&&!isNaN(parseInt(r[1]))) items.push({name:r[0],price:parseInt(r[1]),unit:r[2]||"Plate",img:localPhoto(r[0])||(/^https?:/.test(String(r[3]||""))?r[3]:autoPic(r[0])),desc:String(r[5]||"")}); });
   rowsOf(d.WeekMenu).forEach(r=>{ if(weekDays.includes(r[0])) weekMenu[r[0]]=r[1]||""; });
   closedDays=rowsOf(d.ClosedDays).filter(r=>/^\d{4}-\d\d-\d\d$/.test(r[0])).map(r=>({date:r[0],reason:r[1]||"Dukaan Band Hai"}));
   rowsOf(d.Settings).forEach(r=>{ if(SHOP_KEYS.includes(r[0])){ if(!r[1]&&["name","plan1","plan2","plan3"].includes(r[0])) return; shop[r[0]]=r[1]||""; } });
@@ -348,7 +348,7 @@ function renderSite(){
   put("steps",[["Order karo","Menu se order karo ya WhatsApp pe batao."],["Plan chuno","Daily, weekly ya monthly - jo suit kare."],["Hum taaza banate hain","Roz subah fresh khana tayyar hota hai."],["Garam khana pahuche","Time par aapke darwaze par delivery."]].map((a,i)=>'<div class="step"><span class="n">'+(i+1)+'</span><div><b>'+a[0]+'</b><br>'+a[1]+'</div></div>').join(""));
   put("hygCards",[["🧤","Saaf haath","Khana banate waqt safai ka dhyan"],["🧼","Roz safai","Bartan aur kitchen roz saaf"],["🥕","Taaza saamaan","Roz taaza kharidi hui sabzi"],["♻️","Pack karke garam","Saaf dabbon me pack"]].map(a=>mc(a[0],a[1],a[2])).join(""));
   put("vowCards",[["🌾","Taaza Saamaan","Achhi quality ka saamaan"],["👨‍👩‍👧","Parivaar Jaisa","Wahi khana jo hum ghar me khate hain"],["🎯","Ek Jaisa Swad","Pehle din se aakhri din tak"]].map(a=>mc(a[0],a[1],a[2])).join(""));
-  put("faqList",[["Order kaise karu?","Menu ya Thali se items chuno, cart me naam-address bharo aur WhatsApp pe order bhejo."],["Kaun-kaun se plans hain?","Trial, Weekly aur Monthly. Custom plan ke liye Group Booking bharo."],["Dukaan band ho to subscription ka kya?","Band din ke hisaab se subscription me ek din apne aap jod diya jata hai."],["Payment kaise karu?","Cash on Delivery, Online ya Half Advance - order ke time chun sakte ho."],["Meri jagah delivery hoti hai?","Apna address WhatsApp pe bhejo, hum confirm kar denge."]].map(a=>'<details class="faq"><summary>'+a[0]+'</summary>'+a[1]+'</details>').join(""));
+  put("faqList",[["Order kaise karu?","Menu se items chuno, cart me naam-address bharo aur WhatsApp pe order bhejo."],["Kaun-kaun se plans hain?","Trial, Weekly aur Monthly. Custom plan ke liye Group Booking bharo."],["Dukaan band ho to subscription ka kya?","Band din ke hisaab se subscription me ek din apne aap jod diya jata hai."],["Payment kaise karu?","Cash on Delivery, Online ya Half Advance - order ke time chun sakte ho."],["Meri jagah delivery hoti hai?","Apna address WhatsApp pe bhejo, hum confirm kar denge."]].map(a=>'<details class="faq"><summary>'+a[0]+'</summary>'+a[1]+'</details>').join(""));
 }
 function renderReviews(){
   const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
@@ -356,7 +356,7 @@ function renderReviews(){
   document.getElementById("reviews").style.display=r.length?"block":"none";
   document.getElementById("revList").innerHTML=r.map(a=>'<div class="mini" style="margin:6px 0">⭐⭐⭐⭐⭐<br>'+esc(a.slice(1).join("|").trim())+'<br><b>- '+esc(a[0].trim())+'</b></div>').join("");
 }
-function gotoTab(t){ const m={menu:"orderMenu",thali:"thali",subs:"subform",home:"top"}; const e=document.getElementById(m[t]||t); if(e) e.scrollIntoView({behavior:"smooth"}); }
+function gotoTab(t){ const m={menu:"orderMenu",thali:"orderMenu",subs:"subform",home:"top"}; const e=document.getElementById(m[t]||t); if(e) e.scrollIntoView({behavior:"smooth"}); }
 function openAdmin(){ const a=document.getElementById("tab-admin"); a.style.display="block"; a.scrollIntoView(); }
 function logoutAdmin(){adminPass="";document.getElementById("adminPass").value="";document.getElementById("adminBox").style.display="none";document.getElementById("tab-admin").style.display="none";alert("Admin logout ho gaya.");}
 function logoutAdmin(){
@@ -660,26 +660,36 @@ function localPhotos(){ try{ return JSON.parse(localStorage.getItem("itemPhotos"
 function localPhoto(name){ return localPhotos()[name]||""; }
 function saveLocalPhoto(name,data){ try{ let m=localPhotos(); m[name]=data; localStorage.setItem("itemPhotos",JSON.stringify(m)); return true; }catch(e){ return false; } }
 const escH=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const EMOJI_MAP=[["paneer","🧀"],["roti|chapati|paratha|naan|kulcha|phulka|tawa","🫓"],["biryani|pulao|rice|chawal|jeera|khichdi","🍚"],["dal|daal|rajma|chole|chhole|sambar","🍲"],["samosa|momo|kachori","🥟"],["pizza","🍕"],["burger","🍔"],["sandwich|toast","🥪"],["nacho|taco|wrap|roll","🌮"],["pasta|noodle|maggi|chowmein|macaroni","🍝"],["salad|raita|kheera","🥗"],["chai|tea","🍵"],["coffee","☕"],["lassi|shake|juice|cold drink|soda|chaas|shikanji","🥤"],["jamun|halwa|kheer|ladoo|laddu|rasgulla|sweet|mithai|jalebi","🍮"],["cake|pastry|brownie","🍰"],["ice cream|kulfi","🍨"],["egg|anda|omelette","🥚"],["chicken|tikka","🍗"],["fish|prawn","🐟"],["aloo|potato","🥔"],["gobi|broccoli","🥦"],["fries|chips","🍟"],["soup","🍜"],["veg|sabzi|sabji|bhindi|baingan|matar|palak","🥘"],["curry|masala|tadka|makhani|butter","🍛"]];
+function autoPic(name){
+  let n=String(name||"").toLowerCase(), em="🍛";
+  for(const [k,e] of EMOJI_MAP){ if(new RegExp(k).test(n)){ em=e; break; } }
+  let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0;
+  const hues=[28,38,45,18,52,8,95,150], hue=hues[h%hues.length];
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl('+hue+',85%,86%)"/><stop offset="1" stop-color="hsl('+((hue+18)%360)+',70%,68%)"/></linearGradient></defs><rect width="300" height="300" fill="url(#g)"/><circle cx="150" cy="150" r="108" fill="rgba(255,255,255,.55)"/><text x="150" y="150" font-size="132" text-anchor="middle" dominant-baseline="central">'+em+'</text></svg>';
+  return "data:image/svg+xml;utf8,"+encodeURIComponent(svg);
+}
 function previewProductPhoto(){
-  let f=document.getElementById("pPhoto").files[0], im=document.getElementById("pPhotoPrev");
-  if(!f){im.style.display="none";return;}
-  im.src=URL.createObjectURL(f); im.style.display="inline-block";
+  let f=document.getElementById("pPhoto").files[0], im=document.getElementById("pPhotoPrev"), n=document.getElementById("pName").value.trim();
+  if(f){ im.src=URL.createObjectURL(f); im.style.display="inline-block"; }
+  else if(n){ im.src=autoPic(n); im.style.display="inline-block"; }
+  else im.style.display="none";
 }
 async function addProduct(){
   let n=document.getElementById("pName").value.trim(),p=document.getElementById("pPrice").value,u=document.getElementById("pUnit").value,desc=document.getElementById("pDesc").value.trim().replace(/\s*\n\s*/g," ");
   if(!n||!p){alert("Naam aur Price dalo");return;}
-  let img=DEFAULT_IMG, f=document.getElementById("pPhoto").files[0];
+  let img=autoPic(n), f=document.getElementById("pPhoto").files[0];
   if(f){
     try{ let d=await fileToData(f,240,240,40000,"jpeg"); if(!d){alert("Photo bahut bhari hai, doosri photo lo");return;} img=d; }
     catch(e){alert("Photo padh nahi payi, doosri try karo");return;}
   }
   let rl=removedList(); if(rl.includes(n)){ shop.removedItems=JSON.stringify(rl.filter(x=>x!==n)); pushShop(); }
   // Photo Google Sheet me save nahi hoti - sirf is browser/phone me rehti hai
-  let photoSaved=true; if(img!==DEFAULT_IMG) photoSaved=saveLocalPhoto(n,img);
+  let photoSaved=true; if(f) photoSaved=saveLocalPhoto(n,img);
   items.push({name:n,price:parseInt(p),unit:u,img:img,desc:desc});
   saveToSheet("Products",[n,p,u,"","Product",desc]);
   ["pName","pPrice","pDesc"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("pPhoto").value=""; document.getElementById("pPhotoPrev").style.display="none";
+  document.getElementById("pPhoto").value=""; previewProductPhoto();
   renderItems(); alert("✅ Item Add Ho Gaya, Sheet me bhi gaya!"+(photoSaved?"":"\n⚠️ Photo is browser me save nahi ho payi (storage full)."));
 }
 function showOrders(){
