@@ -109,7 +109,7 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 </div>
 
 <!-- THALI -->
-<div id="thali" style="display:none">
+<div id="thali">
 <div style="background:#fff;margin:10px;padding:15px;border-radius:12px"><h3 style="margin:0">🍽️ Thali - Plate Option</h3><p style="font-size:13px;color:#666">Ek Thali me poora khana</p><div id="thaliList"></div></div>
 </div>
 
@@ -233,8 +233,8 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 <button onclick="addProduct()" style="background:var(--pri);color:#fff;width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold">Item Add Karo</button>
 <h3 style="margin-top:20px">🗑️ Item Hatao</h3><div id="adminItemsList"></div>
 
-<div style="display:none"><h3 style="margin-top:20px">🍽️ Thali Edit Karo (Content + Photo)</h3>
-<p class="sm" style="margin:0 0 6px">Thali ke andar kya-kya milega wo likho. Photo sirf is phone/browser me rehti hai, Sheet me save nahi hoti.</p>
+<div><h3 style="margin-top:20px">🍽️ Thali Edit Karo (Content + Photo)</h3>
+<p class="sm" style="margin:0 0 6px">Thali ke andar kya-kya milega wo likho. Photo upload na karo to thali ke content se 🪄 apne aap photo ban jati hai. Upload ki hui photo sirf is phone/browser me rehti hai, Sheet me save nahi hoti.</p>
 <div id="adminThaliList"></div></div>
 <h3 style="margin-top:20px">📅 7 Day Menu</h3><div id="weekMenuAdmin"></div>
 <button onclick="saveWeekMenu()" style="background:#000;color:#fff;width:100%;padding:12px;border:none;border-radius:8px">7 Day Menu Save Karo</button>
@@ -348,7 +348,7 @@ function renderSite(){
   put("steps",[["Order karo","Menu se order karo ya WhatsApp pe batao."],["Plan chuno","Daily, weekly ya monthly - jo suit kare."],["Hum taaza banate hain","Roz subah fresh khana tayyar hota hai."],["Garam khana pahuche","Time par aapke darwaze par delivery."]].map((a,i)=>'<div class="step"><span class="n">'+(i+1)+'</span><div><b>'+a[0]+'</b><br>'+a[1]+'</div></div>').join(""));
   put("hygCards",[["🧤","Saaf haath","Khana banate waqt safai ka dhyan"],["🧼","Roz safai","Bartan aur kitchen roz saaf"],["🥕","Taaza saamaan","Roz taaza kharidi hui sabzi"],["♻️","Pack karke garam","Saaf dabbon me pack"]].map(a=>mc(a[0],a[1],a[2])).join(""));
   put("vowCards",[["🌾","Taaza Saamaan","Achhi quality ka saamaan"],["👨‍👩‍👧","Parivaar Jaisa","Wahi khana jo hum ghar me khate hain"],["🎯","Ek Jaisa Swad","Pehle din se aakhri din tak"]].map(a=>mc(a[0],a[1],a[2])).join(""));
-  put("faqList",[["Order kaise karu?","Menu se items chuno, cart me naam-address bharo aur WhatsApp pe order bhejo."],["Kaun-kaun se plans hain?","Trial, Weekly aur Monthly. Custom plan ke liye Group Booking bharo."],["Dukaan band ho to subscription ka kya?","Band din ke hisaab se subscription me ek din apne aap jod diya jata hai."],["Payment kaise karu?","Cash on Delivery, Online ya Half Advance - order ke time chun sakte ho."],["Meri jagah delivery hoti hai?","Apna address WhatsApp pe bhejo, hum confirm kar denge."]].map(a=>'<details class="faq"><summary>'+a[0]+'</summary>'+a[1]+'</details>').join(""));
+  put("faqList",[["Order kaise karu?","Menu ya Thali se items chuno, cart me naam-address bharo aur WhatsApp pe order bhejo."],["Kaun-kaun se plans hain?","Trial, Weekly aur Monthly. Custom plan ke liye Group Booking bharo."],["Dukaan band ho to subscription ka kya?","Band din ke hisaab se subscription me ek din apne aap jod diya jata hai."],["Payment kaise karu?","Cash on Delivery, Online ya Half Advance - order ke time chun sakte ho."],["Meri jagah delivery hoti hai?","Apna address WhatsApp pe bhejo, hum confirm kar denge."]].map(a=>'<details class="faq"><summary>'+a[0]+'</summary>'+a[1]+'</details>').join(""));
 }
 function renderReviews(){
   const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
@@ -356,7 +356,7 @@ function renderReviews(){
   document.getElementById("reviews").style.display=r.length?"block":"none";
   document.getElementById("revList").innerHTML=r.map(a=>'<div class="mini" style="margin:6px 0">⭐⭐⭐⭐⭐<br>'+esc(a.slice(1).join("|").trim())+'<br><b>- '+esc(a[0].trim())+'</b></div>').join("");
 }
-function gotoTab(t){ const m={menu:"orderMenu",thali:"orderMenu",subs:"subform",home:"top"}; const e=document.getElementById(m[t]||t); if(e) e.scrollIntoView({behavior:"smooth"}); }
+function gotoTab(t){ const m={menu:"orderMenu",thali:"thali",subs:"subform",home:"top"}; const e=document.getElementById(m[t]||t); if(e) e.scrollIntoView({behavior:"smooth"}); }
 function openAdmin(){ const a=document.getElementById("tab-admin"); a.style.display="block"; a.scrollIntoView(); }
 function logoutAdmin(){adminPass="";document.getElementById("adminPass").value="";document.getElementById("adminBox").style.display="none";document.getElementById("tab-admin").style.display="none";alert("Admin logout ho gaya.");}
 function logoutAdmin(){
@@ -506,7 +506,7 @@ function renderUpiAdminPreview(){
 function showTab(t,btn){ ["home","menu","thali","subs","admin"].forEach(x=>document.getElementById("tab-"+x).style.display = x===t?"block":"none"); document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active")); if(btn)btn.classList.add("active"); }
 function renderItems(){
   let q = (document.getElementById("search").value||"").toLowerCase();
-  let html=""; items.forEach((it,i)=>{ if(it.name.toLowerCase().includes(q)){ let c=cart["item_"+i]||0; html+=`<div class="card"><img src="${it.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${it.name}</b><div class="price">₹${it.price} / ${it.unit}</div>${it.desc?`<div class="sm" style="margin-top:2px">${escH(it.desc)}</div>`:""}</div><div>${c==0?`<div style="display:flex;flex-direction:column;gap:5px"><button class="btn" onclick="addItem(${i})">ADD +</button><button class="btn" style="background:#166534" onclick="directProductOrder(${i})">ORDER NOW</button></div>`:`<div class="qty"><button onclick="minusItem(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${c}" onchange="setQty('item_${i}',this.value)"><button onclick="addItem(${i})">+</button><button class="del" title="Hatao" onclick="setQty('item_${i}',0)">🗑</button></div>`}</div></div>`; }});
+  let html=""; items.forEach((it,i)=>{ if(it.name.toLowerCase().includes(q)){ let c=cart["item_"+i]||0; html+=`<div class="card"><img src="${it.img}" onerror="this.onerror=null;this.src=autoPic(items[${i}].name)"><div style="flex:1"><b>${it.name}</b><div class="price">₹${it.price} / ${it.unit}</div>${it.desc?`<div class="sm" style="margin-top:2px">${escH(it.desc)}</div>`:""}</div><div>${c==0?`<div style="display:flex;flex-direction:column;gap:5px"><button class="btn" onclick="addItem(${i})">ADD +</button><button class="btn" style="background:#166534" onclick="directProductOrder(${i})">ORDER NOW</button></div>`:`<div class="qty"><button onclick="minusItem(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${c}" onchange="setQty('item_${i}',this.value)"><button onclick="addItem(${i})">+</button><button class="del" title="Hatao" onclick="setQty('item_${i}',0)">🗑</button></div>`}</div></div>`; }});
   document.getElementById("itemsList").innerHTML=isClosedToday()?"":html; renderAdminItems();
 }
 function addItem(i){if(isClosedToday()){alert("Dukaan abhi band hai 🙏");return;}cart["item_"+i]=(cart["item_"+i]||0)+1;renderItems();updateCartText();}
@@ -517,14 +517,14 @@ function directProductOrder(i){
 }
 function minusItem(i){cart["item_"+i]--;if(cart["item_"+i]<=0)delete cart["item_"+i];renderItems();updateCartText();}
 function renderThali(){
-  let html=""; allThalis.forEach((t,i)=>{let q=cart["thali_"+i]||0; html+=`<div class="card"><img src="${t.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${t.name}</b> <span style="background:#fff3cd;font-size:11px;padding:2px 6px;border-radius:10px">${t.tag}</span><div style="font-size:12px;color:#555">${escH(t.items)}</div><div class="price">₹${t.price} / Plate</div></div><div>${q==0?`<button class="btn" onclick="addThali(${i})">ADD +</button>`:`<div class="qty"><button onclick="minusThali(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${q}" onchange="setQty('thali_${i}',this.value)"><button onclick="addThali(${i})">+</button><button class="del" title="Hatao" onclick="setQty('thali_${i}',0)">🗑</button></div>`}</div></div>`;});
+  let html=""; allThalis.forEach((t,i)=>{let q=cart["thali_"+i]||0; html+=`<div class="card"><img src="${t.img}" onerror="this.onerror=null;this.src=autoThaliPic(allThalis[${i}].name,allThalis[${i}].items)"><div style="flex:1"><b>${t.name}</b> <span style="background:#fff3cd;font-size:11px;padding:2px 6px;border-radius:10px">${t.tag}</span><div style="font-size:12px;color:#555">${escH(t.items)}</div><div class="price">₹${t.price} / Plate</div></div><div>${q==0?`<button class="btn" onclick="addThali(${i})">ADD +</button>`:`<div class="qty"><button onclick="minusThali(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${q}" onchange="setQty('thali_${i}',this.value)"><button onclick="addThali(${i})">+</button><button class="del" title="Hatao" onclick="setQty('thali_${i}',0)">🗑</button></div>`}</div></div>`;});
   document.getElementById("thaliList").innerHTML=isClosedToday()?"":html;
 }
 function thaliOv(){ try{ let o=JSON.parse(shop.thaliData||"{}"); return (o&&typeof o==="object")?o:{}; }catch(e){ return {}; } }
 function thaliPhotos(){ try{ return JSON.parse(localStorage.getItem("thaliPhotos")||"{}")||{}; }catch(e){ return {}; } }
 function applyThaliOverrides(){
   let ov=thaliOv(), ph=thaliPhotos();
-  allThalis=defaultThalis.map((t,i)=>{ let o=ov[i]||{}; return Object.assign({},t,{name:o.name||t.name,price:parseInt(o.price)||t.price,items:(o.items!=null&&o.items!=="")?o.items:t.items,img:ph[i]||t.img}); });
+  allThalis=defaultThalis.map((t,i)=>{ let o=ov[i]||{}; let r=Object.assign({},t,{name:o.name||t.name,price:parseInt(o.price)||t.price,items:(o.items!=null&&o.items!=="")?o.items:t.items}); r.img=ph[i]||autoThaliPic(r.name,r.items); return r; });
   renderThali();
 }
 const attrH=t=>escH(t).replace(/"/g,"&quot;");
@@ -660,13 +660,37 @@ function localPhotos(){ try{ return JSON.parse(localStorage.getItem("itemPhotos"
 function localPhoto(name){ return localPhotos()[name]||""; }
 function saveLocalPhoto(name,data){ try{ let m=localPhotos(); m[name]=data; localStorage.setItem("itemPhotos",JSON.stringify(m)); return true; }catch(e){ return false; } }
 const escH=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-const EMOJI_MAP=[["paneer","🧀"],["roti|chapati|paratha|naan|kulcha|phulka|tawa","🫓"],["biryani|pulao|rice|chawal|jeera|khichdi","🍚"],["dal|daal|rajma|chole|chhole|sambar","🍲"],["samosa|momo|kachori","🥟"],["pizza","🍕"],["burger","🍔"],["sandwich|toast","🥪"],["nacho|taco|wrap|roll","🌮"],["pasta|noodle|maggi|chowmein|macaroni","🍝"],["salad|raita|kheera","🥗"],["chai|tea","🍵"],["coffee","☕"],["lassi|shake|juice|cold drink|soda|chaas|shikanji","🥤"],["jamun|halwa|kheer|ladoo|laddu|rasgulla|sweet|mithai|jalebi","🍮"],["cake|pastry|brownie","🍰"],["ice cream|kulfi","🍨"],["egg|anda|omelette","🥚"],["chicken|tikka","🍗"],["fish|prawn","🐟"],["aloo|potato","🥔"],["gobi|broccoli","🥦"],["fries|chips","🍟"],["soup","🍜"],["veg|sabzi|sabji|bhindi|baingan|matar|palak","🥘"],["curry|masala|tadka|makhani|butter","🍛"]];
+const EMOJI_MAP=[["paneer","🧀"],["chaat|bhel|golgappa|pani puri|puchka|dahi puri|sev puri","🥙"],["dosa|uttapam|appam|cheela|chilla","🥞"],["idli|vada|medu","🍘"],["poha|upma|sevai|daliya|oats","🥣"],["pakora|pakoda|bhajiya|tikki|cutlet|kebab|kabab|nugget","🥠"],["dhokla|khandvi|thepla","🥮"],["roti|chapati|paratha|naan|kulcha|phulka|tawa|puri|poori|bhature|bhatura|thepla","🫓"],["biryani|pulao|rice|chawal|jeera|khichdi","🍚"],["dal|daal|rajma|chole|chhole|sambar","🍲"],["samosa|momo|kachori","🥟"],["pizza","🍕"],["burger","🍔"],["sandwich|toast","🥪"],["nacho|taco|wrap|roll","🌮"],["pasta|noodle|maggi|chowmein|macaroni","🍝"],["salad|raita|kheera","🥗"],["chai|tea","🍵"],["coffee","☕"],["lassi|shake|juice|cold drink|soda|chaas|shikanji","🥤"],["jamun|halwa|kheer|ladoo|laddu|rasgulla|sweet|mithai|jalebi|kaju|barfi|katli|peda|gajar","🍮"],["cake|pastry|brownie","🍰"],["ice cream|kulfi","🍨"],["egg|anda|omelette","🥚"],["chicken|tikka","🍗"],["fish|prawn","🐟"],["aloo|potato","🥔"],["gobi|broccoli","🥦"],["fries|chips","🍟"],["soup","🍜"],["veg|sabzi|sabji|bhindi|baingan|matar|palak","🥘"],["curry|masala|tadka|makhani|butter|korma|kofta|kadhi|bhaji|gravy","🍛"]];
 function autoPic(name){
-  let n=String(name||"").toLowerCase(), em="🍛";
+  let n=String(name||"").toLowerCase(), em="";
   for(const [k,e] of EMOJI_MAP){ if(new RegExp(k).test(n)){ em=e; break; } }
   let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0;
   const hues=[28,38,45,18,52,8,95,150], hue=hues[h%hues.length];
-  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl('+hue+',85%,86%)"/><stop offset="1" stop-color="hsl('+((hue+18)%360)+',70%,68%)"/></linearGradient></defs><rect width="300" height="300" fill="url(#g)"/><circle cx="150" cy="150" r="108" fill="rgba(255,255,255,.55)"/><text x="150" y="150" font-size="132" text-anchor="middle" dominant-baseline="central">'+em+'</text></svg>';
+  let body;
+  if(em) body='<text x="150" y="150" font-size="132" text-anchor="middle" dominant-baseline="central">'+em+'</text>';
+  else { let L=(String(name||"").match(/[A-Za-z0-9\u0900-\u097F]/)||["🍽️"])[0].toUpperCase().replace(/&/g,"&amp;").replace(/</g,"&lt;");
+    body='<text x="150" y="156" font-size="130" font-weight="bold" font-family="Georgia,serif" fill="#72531f" text-anchor="middle" dominant-baseline="central">'+L+'</text>'; }
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl('+hue+',85%,86%)"/><stop offset="1" stop-color="hsl('+((hue+18)%360)+',70%,68%)"/></linearGradient></defs><rect width="300" height="300" fill="url(#g)"/><circle cx="150" cy="150" r="108" fill="rgba(255,255,255,.55)"/>'+body+'</svg>';
+  return "data:image/svg+xml;utf8,"+encodeURIComponent(svg);
+}
+function thaliEmojis(text){
+  let out=[];
+  String(text||"").toLowerCase().split(/[,+&\n]/).forEach(part=>{ part=part.trim(); if(!part) return;
+    for(const [k,e] of EMOJI_MAP){ if(new RegExp(k).test(part)){ if(!out.includes(e)) out.push(e); break; } } });
+  return out.slice(0,6);
+}
+function autoThaliPic(name,content){
+  let em=thaliEmojis(content), n=String(name||"").toLowerCase();
+  let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0;
+  const hues=[28,38,45,18,52,8], hue=hues[h%hues.length];
+  let body="";
+  if(em.length<=1){ body='<text x="150" y="150" font-size="124" text-anchor="middle" dominant-baseline="central">'+(em[0]||"🍽️")+'</text>'; }
+  else {
+    let k=em.length, r=k===2?50:72, fs=k===2?84:k<=4?66:56;
+    em.forEach((e,i)=>{ let a=(-90+i*360/k)*Math.PI/180; if(k===2) a=(i?0:Math.PI);
+      body+='<text x="'+(150+r*Math.cos(a)).toFixed(1)+'" y="'+(150+r*Math.sin(a)).toFixed(1)+'" font-size="'+fs+'" text-anchor="middle" dominant-baseline="central">'+e+'</text>'; });
+  }
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl('+hue+',85%,84%)"/><stop offset="1" stop-color="hsl('+((hue+18)%360)+',70%,62%)"/></linearGradient></defs><rect width="300" height="300" fill="url(#g)"/><circle cx="150" cy="150" r="128" fill="#fff"/><circle cx="150" cy="150" r="116" fill="none" stroke="#d9c9a3" stroke-width="3"/><circle cx="150" cy="150" r="104" fill="#fffaf0"/>'+body+'</svg>';
   return "data:image/svg+xml;utf8,"+encodeURIComponent(svg);
 }
 function previewProductPhoto(){
