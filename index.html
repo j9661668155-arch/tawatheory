@@ -172,6 +172,10 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 <div id="adminBox" style="display:none">
 <button onclick="loginAdmin(true)" style="background:#eee;width:100%;padding:10px;border:none;border-radius:8px;margin:8px 0">🔄 Refresh (Sheet se naya data)</button>
 <button onclick="logoutAdmin()" style="background:#b91c1c;color:#fff;width:100%;padding:10px;border:none;border-radius:8px;margin:4px 0">🚪 Admin Logout</button>
+<div style="border:1px solid #e7d8b7;border-radius:10px;padding:10px;margin:8px 0;background:#fff">
+<div id="shopStatusLine" style="font-weight:bold;font-size:14px;margin-bottom:6px"></div>
+<div style="display:flex;gap:6px"><button onclick="setShopMode('open')" style="flex:1;background:#16a34a;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:bold">🟢 Abhi Kholo</button><button onclick="setShopMode('closed')" style="flex:1;background:#b91c1c;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:bold">🔴 Abhi Band Karo</button><button onclick="setShopMode('')" style="flex:1;background:#eee;border:none;border-radius:8px;padding:10px;font-weight:bold">⏱ Auto</button></div>
+<div class="sm" style="margin-top:4px">Auto = daily timing ke hisaab se khulegi/band hogi.</div></div>
 <div id="adminSummary" style="background:#fff4e0;border:1px solid #e7d8b7;border-radius:10px;padding:10px;margin:8px 0;font-size:14px;font-weight:bold"></div>
 <h3 id="ordersSec" style="margin-top:12px">📦 Orders - Confirm / Reject</h3>
 <div id="ordersList"></div>
@@ -205,6 +209,11 @@ body.cartOpen #cartOverlay{opacity:1;pointer-events:auto}
 <input id="setWhatsApp" type="tel" inputmode="numeric" maxlength="10" placeholder="10 digit WhatsApp number (bina +91)" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" style="width:100%;box-sizing:border-box">
 <button type="button" onclick="saveWhatsAppNumber()" style="background:#16a34a;color:#fff;width:100%;padding:11px;border:0;border-radius:8px;font-weight:bold;margin-top:5px">💾 WhatsApp Number Save Karo</button>
 <div id="waAdminStatus" style="font-size:12px;color:#166534;margin-top:6px">Number save karne ke baad customer orders isi WhatsApp par aayenge.</div>
+</div>
+<div style="border:1px solid #e7d8b7;background:#fffaf0;padding:12px;border-radius:10px;margin:8px 0">
+<label style="font-weight:bold;display:block">🕘 Daily Dukaan Timing (roz)</label>
+<div style="display:flex;gap:6px"><div style="flex:1"><span class="sm">Khulne ka time</span><input type="time" id="setOpen"></div><div style="flex:1"><span class="sm">Band hone ka time</span><input type="time" id="setClose"></div></div>
+<p class="sm" style="margin:2px 0 0">Time ke bahar dukaan band rahegi aur koi order nahi hoga. Dono khali = koi time limit nahi. "Settings Save Karo" dabana na bhoolein.</p>
 </div>
 <input id="setPhone" placeholder="Call / Contact Number (10 digit)"><input id="setAddr" placeholder="Dukaan ka Address">
 <h3>👁️ Website Menu Show / Hide</h3><div class="grid2">
@@ -386,7 +395,7 @@ function showPay(amt,ref,type,mobile,key,detail){
   document.getElementById("payBox").style.display="flex";
 }
 function copyUpi(){ try{navigator.clipboard.writeText(shop.upi);alert("UPI ID copy ho gayi");}catch(e){alert(shop.upi);} }
-function sendBooking(){ if(isClosedToday()){alert("Aaj Dukaan Band Hai 🙏");return;}
+function sendBooking(){ if(isClosedToday()){alert("Dukaan abhi band hai 🙏");return;}
   let g=id=>document.getElementById(id).value.trim();
   if(!g("bname")||!g("bmobile")){alert("Naam aur Mobile bharo");return;}
   if(!numOk()){alert("WHATSAPP_NUMBER set nahi hai. Code me apna number daalo.");return;}
@@ -402,7 +411,7 @@ const baseItems = [
 let items = [...baseItems];
 let adminPass = "";
 let shop = {name:"Tawa Theory",tag:"ROTI • NACHO • FUSION",logo:"",banner:"",plan1:"99",plan2:"70",plan3:"60",phone:"",whatsapp:"",addr:"",reviews:"",upi:"",removedItems:""};
-const SHOP_KEYS=["name","tag","logo","banner","plan1","plan2","plan3","phone","whatsapp","addr","reviews","upi","menuVisibility","removedItems"];
+const SHOP_KEYS=["name","tag","logo","banner","plan1","plan2","plan3","phone","whatsapp","addr","reviews","upi","menuVisibility","removedItems","openTime","closeTime","manualState"];
 try{ Object.assign(shop, JSON.parse(localStorage.getItem("shopSettings")||"{}")); }catch(e){}
 function applyShop(){
   let l=document.getElementById("hdrLogo"), h=document.getElementById("hdr");
@@ -425,7 +434,7 @@ function applyShop(){
 function fillShopForm(){
  document.getElementById("setWhatsApp").value=shop.whatsapp||"";
  ["Menu","Plans","Why","Faq","Contact"].forEach(k=>{let el=document.getElementById("vis"+k);if(el)el.checked=(getMenuVisibility()[k.toLowerCase()]!==false);});
- document.getElementById("setP1").value=shop.plan1; document.getElementById("setP2").value=shop.plan2; document.getElementById("setP3").value=shop.plan3; document.getElementById("setUpi").value=shop.upi||""; document.getElementById("setPhone").value=shop.phone; document.getElementById("setRev").value=shop.reviews||""; document.getElementById("setAddr").value=shop.addr; document.getElementById("setName").value=shop.name; document.getElementById("setTag").value=shop.tag; renderUpiAdminPreview(); }
+ document.getElementById("setP1").value=shop.plan1; document.getElementById("setP2").value=shop.plan2; document.getElementById("setP3").value=shop.plan3; document.getElementById("setUpi").value=shop.upi||""; document.getElementById("setPhone").value=shop.phone; document.getElementById("setRev").value=shop.reviews||""; document.getElementById("setAddr").value=shop.addr; document.getElementById("setName").value=shop.name; document.getElementById("setTag").value=shop.tag; document.getElementById("setOpen").value=decT(shop.openTime); document.getElementById("setClose").value=decT(shop.closeTime); renderUpiAdminPreview(); }
 function fileToData(file,maxW,maxH,limit,type){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ let sc=Math.min(1,maxW/img.width,maxH/img.height), c=document.createElement("canvas"); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc); const x=c.getContext("2d"); if(type==="jpeg"){x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);} x.drawImage(img,0,0,c.width,c.height); let q=.85,out; do{ out=c.toDataURL("image/"+type,q); q-=.1; }while(out.length>limit&&q>.2); res(out.length>limit?null:out); }; img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
 async function pushShop(){ localStorage.setItem("shopSettings",JSON.stringify(shop)); localStorage.setItem("menuVisibility",shop.menuVisibility||"{}"); applyShop(); await post({type:"Settings",rows:SHOP_KEYS.map(k=>[k,shop[k]||""])}); }
 async function saveWhatsAppNumber(){
@@ -453,8 +462,11 @@ async function saveSettings(){
   [["plan1","setP1"],["plan2","setP2"],["plan3","setP3"]].forEach(a=>{ let v=document.getElementById(a[1]).value.trim(); if(v) shop[a[0]]=v; });
   let up=document.getElementById("setUpi").value.trim(); if(up&&!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(up)){alert("UPI ID galat hai (jaise naam@upi)");return;} shop.upi=up;
   shop.reviews=document.getElementById("setRev").value.trim(); shop.phone=document.getElementById("setPhone").value.trim(); shop.addr=document.getElementById("setAddr").value.trim();
+  let ot=document.getElementById("setOpen").value, ct=document.getElementById("setClose").value;
+  if((ot&&!ct)||(!ot&&ct)){alert("Khulne aur band hone ka dono time daalo (ya dono khali chhodo)");return;}
+  shop.openTime=ot?encT(ot):""; shop.closeTime=ct?encT(ct):"";
   await pushShop(); document.getElementById("setLogo").value=""; document.getElementById("setBanner").value="";
-  alert("✅ Shop Settings Save! Sabko dikhega.");
+  checkShopClosed(); alert("✅ Shop Settings Save! Sabko dikhega.");
 }
 async function removeShopImg(k){ shop[k]=""; await pushShop(); alert("✅ Hata diya"); }
 let cart = {};
@@ -492,17 +504,18 @@ function showTab(t,btn){ ["home","menu","thali","subs","admin"].forEach(x=>docum
 function renderItems(){
   let q = (document.getElementById("search").value||"").toLowerCase();
   let html=""; items.forEach((it,i)=>{ if(it.name.toLowerCase().includes(q)){ let c=cart["item_"+i]||0; html+=`<div class="card"><img src="${it.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${it.name}</b><div class="price">₹${it.price} / ${it.unit}</div>${it.desc?`<div class="sm" style="margin-top:2px">${escH(it.desc)}</div>`:""}</div><div>${c==0?`<div style="display:flex;flex-direction:column;gap:5px"><button class="btn" onclick="addItem(${i})">ADD +</button><button class="btn" style="background:#166534" onclick="directProductOrder(${i})">ORDER NOW</button></div>`:`<div class="qty"><button onclick="minusItem(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${c}" onchange="setQty('item_${i}',this.value)"><button onclick="addItem(${i})">+</button><button class="del" title="Hatao" onclick="setQty('item_${i}',0)">🗑</button></div>`}</div></div>`; }});
-  document.getElementById("itemsList").innerHTML=html; renderAdminItems();
+  document.getElementById("itemsList").innerHTML=isClosedToday()?"":html; renderAdminItems();
 }
-function addItem(i){if(isClosedToday()){alert("Aaj Dukaan Band Hai 🙏");return;}cart["item_"+i]=(cart["item_"+i]||0)+1;renderItems();updateCartText();}
+function addItem(i){if(isClosedToday()){alert("Dukaan abhi band hai 🙏");return;}cart["item_"+i]=(cart["item_"+i]||0)+1;renderItems();updateCartText();}
 function directProductOrder(i){
+  if(isClosedToday()){alert("Dukaan abhi band hai 🙏");return;}
  cart={}; cart["item_"+i]=1; renderItems(); updateCartText();
  openCart();
 }
 function minusItem(i){cart["item_"+i]--;if(cart["item_"+i]<=0)delete cart["item_"+i];renderItems();updateCartText();}
 function renderThali(){
   let html=""; allThalis.forEach((t,i)=>{let q=cart["thali_"+i]||0; html+=`<div class="card"><img src="${t.img}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect width=%2270%22 height=%2270%22 fill=%22%23eee%22/%3E%3Ctext x=%2235%22 y=%2245%22 font-size=%2228%22 text-anchor=%22middle%22%3E🍛%3C/text%3E%3C/svg%3E'"><div style="flex:1"><b>${t.name}</b> <span style="background:#fff3cd;font-size:11px;padding:2px 6px;border-radius:10px">${t.tag}</span><div style="font-size:12px;color:#555">${t.items}</div><div class="price">₹${t.price} / Plate</div></div><div>${q==0?`<button class="btn" onclick="addThali(${i})">ADD +</button>`:`<div class="qty"><button onclick="minusThali(${i})">-</button><input class="qin" type="number" min="1" max="99" value="${q}" onchange="setQty('thali_${i}',this.value)"><button onclick="addThali(${i})">+</button><button class="del" title="Hatao" onclick="setQty('thali_${i}',0)">🗑</button></div>`}</div></div>`;});
-  document.getElementById("thaliList").innerHTML=html;
+  document.getElementById("thaliList").innerHTML=isClosedToday()?"":html;
 }
 function addThali(i){cart["thali_"+i]=(cart["thali_"+i]||0)+1;renderThali();updateCartText();}
 function minusThali(i){cart["thali_"+i]--;if(cart["thali_"+i]<=0)delete cart["thali_"+i];renderThali();updateCartText();}
@@ -523,8 +536,7 @@ function updateCartText(){
   let ct=document.getElementById("cartTop"); if(ct) ct.innerText = total==0?"(0)":"("+Object.values(cart).reduce((a,b)=>a+b,0)+" • ₹"+total+")";
 }
 function orderOnWhatsApp(){
-  let tdy=todayStr();
-  if(closedDays.find(c=>c.date===tdy)){alert("Aaj Dukaan Band Hai 🙏");return;}
+  if(isClosedToday()){alert("Dukaan abhi band hai 🙏");return;}
   // Checkout ke waqt WhatsApp number missing ho to user/admin se lein
   if(!numOk()){
     let entered=prompt("Order receive karne wala WhatsApp number daalein (10 digit, bina +91 ke):", shop.whatsapp||"");
@@ -550,7 +562,7 @@ function orderOnWhatsApp(){
   if(payAmt&&shop.upi) showPay(payAmt,o.id,"Orders",mobile,o.id); else alert("✅ Order bhej diya! Sheet me bhi save ho gaya.");
 }
 function saveSub(){
-  if(isClosedToday()){alert("Aaj Dukaan Band Hai 🙏");return;}
+  if(isClosedToday()){alert("Dukaan abhi band hai 🙏");return;}
   let s={name:document.getElementById("sname").value.trim(),mobile:document.getElementById("smobile").value.trim(),addr:document.getElementById("saddr").value.trim(),b:document.getElementById("sb").value,l:document.getElementById("sl").value,d:document.getElementById("sd").value,days:document.getElementById("sdays").value,date:todayStr()};
   if(!s.name||!s.mobile){alert("Naam aur Mobile bharo");return;}
   if(!ensureWa()) return;
@@ -698,19 +710,40 @@ function saveWeekMenu(){ weekDays.forEach(d=>{ weekMenu[d]=document.getElementBy
 function showTodayMenu(){ let today=new Date().toLocaleDateString("en-US",{weekday:"long"}); let tomorrow=new Date(Date.now()+86400000).toLocaleDateString("en-US",{weekday:"long"}); let el=document.getElementById("todayMenuBox"); if(el) el.innerHTML=`<div style="background:#fff;margin:10px;padding:15px;border-radius:12px;border:2px solid var(--pri)"><h3 style="margin:0">🍽️ Aaj Ka Menu - ${today}</h3><p style="font-weight:bold">${weekMenu[today]||""}</p><div style="background:#fff3cd;padding:10px;border-radius:8px"><b>Kal Ka Menu - ${tomorrow}:</b><br>${weekMenu[tomorrow]||""}</div></div>`; }
 function markShopClosed(){ let date=document.getElementById("closedDate").value, reason=document.getElementById("closedReason").value||"Dukaan Band Hai"; if(!date){alert("Date select karo");return;} if(closedDays.find(c=>c.date===date)){alert("Ye date pehle se band hai");return;} closedDays.push({date,reason}); saveToSheet("ClosedDays",[date,reason]); let c=0; allSubs.forEach(s=>{ let start=new Date(s.date); let end=new Date(start); end.setDate(start.getDate()+parseInt(s.days)); if(new Date(date)>=start && new Date(date)<=end){ s.days=(parseInt(s.days)+1).toString(); c++; }}); alert("✅ "+date+" ko Dukaan Band! "+c+" Subs ka 1 Din Auto Extend ho gaya, Sheet me bhi gaya!"); showClosedList(); showSubs(); checkShopClosed(); }
 function showClosedList(){ let html=""; closedDays.forEach(c=>{ html+=`<div style="background:#fff;padding:8px;border-radius:8px;margin:4px 0">${c.date} - ${c.reason}</div>`;}); document.getElementById("closedList").innerHTML=html; }
-function isClosedToday(){ let t=todayStr(); return !!closedDays.find(c=>c.date===t); }
-function checkShopClosed(){
-  let closed=closedDays.find(c=>c.date===todayStr()), b=document.getElementById("shopClosedBanner");
-  const e=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  document.body.classList.toggle("shopClosed",!!closed);
-  if(closed){
-    b.innerHTML='<div style="font-size:60px">🚫</div><div style="font-weight:bold;font-size:26px;margin:6px 0">Aaj Dukaan Band Hai</div><div style="font-size:16px;font-weight:normal">'+e(closed.reason)+'</div>';
-    window.scrollTo(0,0);
-  } else { b.style.display="none"; b.innerHTML=""; }
-  let ob=document.getElementById("orderBtn"); if(ob){ ob.disabled=!!closed; ob.innerText=closed?"Aaj Dukaan Band Hai":"📲 WhatsApp Pe Order Bhejo"; }
+const encT=t=>"T"+String(t).replace(":","");
+const decT=t=>{ let m=/^T(\d\d)(\d\d)$/.exec(String(t||"")); return m?m[1]+":"+m[2]:""; };
+function fmtT(t){ let m=/^(\d\d):(\d\d)$/.exec(t||""); if(!m) return ""; let h=+m[1]; let ap=h>=12?"PM":"AM"; h=h%12||12; return h+":"+m[2]+" "+ap; }
+function shopStatus(){
+  let cd=closedDays.find(c=>c.date===todayStr());
+  if(cd) return {closed:true,title:"Aaj Dukaan Band Hai",reason:cd.reason,why:"Aaj ki chhutti ("+cd.reason+")"};
+  if(shop.manualState==="closed") return {closed:true,title:"Dukaan Abhi Band Hai",reason:"Abhi orders nahi liye ja rahe. Thodi der baad dobara aayein.",why:"Aapne manually band kiya hai"};
+  let o=decT(shop.openTime), c=decT(shop.closeTime), hrs=(o&&c)?fmtT(o)+" se "+fmtT(c):"";
+  if(shop.manualState==="open") return {closed:false,why:"Aapne manually khola hai"+(hrs?" (timing: "+hrs+")":"")};
+  if(o&&c){
+    let om=+o.slice(0,2)*60+ +o.slice(3), cm=+c.slice(0,2)*60+ +c.slice(3), d=new Date(), nm=d.getHours()*60+d.getMinutes();
+    let open= om<cm ? (nm>=om&&nm<cm) : om>cm ? (nm>=om||nm<cm) : true;
+    if(!open) return {closed:true,title:"Dukaan Abhi Band Hai",reason:"Khulne ka time: "+hrs,why:"Daily timing ke bahar ("+hrs+")"};
+    return {closed:false,why:"Daily timing: "+hrs};
+  }
+  return {closed:false,why:"Timing set nahi hai (hamesha khuli)"};
 }
+function isClosedToday(){ return shopStatus().closed; }
+let wasClosed=null;
+function checkShopClosed(){
+  let st=shopStatus(), b=document.getElementById("shopClosedBanner");
+  const e=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  document.body.classList.toggle("shopClosed",st.closed);
+  if(st.closed) b.innerHTML='<div style="font-size:60px">🚫</div><div style="font-weight:bold;font-size:26px;margin:6px 0">'+e(st.title)+'</div><div style="font-size:16px;font-weight:normal">'+e(st.reason)+'</div>';
+  else { b.style.display="none"; b.innerHTML=""; }
+  let ob=document.getElementById("orderBtn"); if(ob){ ob.disabled=st.closed; ob.innerText=st.closed?"Dukaan Band Hai":"📲 WhatsApp Pe Order Bhejo"; }
+  let sl=document.getElementById("shopStatusLine"); if(sl) sl.innerHTML=(st.closed?"🔴 Abhi dukaan BAND hai":"🟢 Abhi dukaan KHULI hai")+'<br><span class="sm" style="font-weight:normal">'+e(st.why)+'</span>';
+  if(wasClosed!==st.closed){ if(st.closed) cart={}; renderItems(); renderThali(); updateCartText(); if(st.closed&&wasClosed!==null) window.scrollTo(0,0); wasClosed=st.closed; }
+}
+async function setShopMode(m){ shop.manualState=m; await pushShop(); checkShopClosed(); alert(m==="closed"?"🔴 Dukaan band - ab koi order nahi hoga":m==="open"?"🟢 Dukaan khul gayi - orders chalu":"⏱ Auto mode - daily timing ke hisaab se"); }
 function sendTomorrowToAllSubs(){ let tomorrow=new Date(Date.now()+86400000).toLocaleDateString("en-US",{weekday:"long"}); let menu=weekMenu[tomorrow]; let html=""; allSubs.forEach(s=>{ let msg="*🍽️ KAL KA MENU*\n\nNamaste "+s.name+" ji!\nKal ("+tomorrow+") ka Menu:\n"+menu+"\nAapka Tiffin time pe pahuch jayega."; let num="91"+s.mobile.replace(/[^0-9]/g,"").slice(-10); html+=`<a href="https://wa.me/${num}?text=${encodeURIComponent(msg)}" target="_blank" style="display:block;background:var(--pri);color:#fff;text-align:center;padding:10px;border-radius:8px;text-decoration:none;margin:4px 0">📲 ${s.name} Ko Kal Ka Menu Bhejo</a>`;}); document.getElementById("tomorrowReminderList").innerHTML=html||"Koi Subs nahi hai"; }
 document.getElementById("sheetUrlInput").value=SHEET_URL; applyRemoved(); renderSite(); applyShop(); renderItems(); renderThali(); showTodayMenu(); showClosedList(); checkShopClosed(); loadPublic();
+setInterval(checkShopClosed,30000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkShopClosed(); });
 </script>
 </body>
 </html>
